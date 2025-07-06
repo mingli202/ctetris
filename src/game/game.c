@@ -127,8 +127,7 @@ void game(enum State *game_state) {
     if (1 * (then - now) / CLOCKS_PER_SEC >= 1) {
       int placement = get_placement(grid, current);
 
-      if (current.position.y + current.shape.m < dim_game.height - 1 &&
-          current.position.y != placement + 1) {
+      if (current.position.y != placement + 1) {
         dispatch(game_win, MOVE_DOWN, &current, grid);
         tick = 3;
       } else {
