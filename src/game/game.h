@@ -80,9 +80,12 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
 bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
   for (int i = 0; i < shape.m; i++) {
     for (int k = 0; k < shape.n; k++) {
-      if (matrix_get(shape, i, k) == 1 &&
-          matrix_get(grid, i + offset_y, k + offset_x) != 0) {
-        return true;
+      if (matrix_get(shape, i, k) == 1) {
+        if (!(i + offset_y >= 0 && i + offset_y < grid.m) ||
+            !(k + offset_x >= 0 && k + offset_x < grid.n) ||
+            matrix_get(grid, i + offset_y, k + offset_x) != 0) {
+          return true;
+        }
       }
     }
   }
@@ -175,9 +178,9 @@ void handle_rotate_left(Matrix grid, Block *current) {
 void rotate_right(Matrix grid, Block *current) {}
 
 bool can_move_left(Matrix grid, Block current) {
-  if (current.position.x < 2) {
-    return false;
-  }
+  // if (current.position.x < 2) {
+  //   return false;
+  // }
 
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 - 1;
@@ -186,9 +189,9 @@ bool can_move_left(Matrix grid, Block current) {
 }
 
 bool can_move_right(Matrix grid, Block current) {
-  if (current.position.x + current.shape.n * 2 >= dim_game.width - 2) {
-    return false;
-  }
+  // if (current.position.x + current.shape.n * 2 >= dim_game.width - 2) {
+  //   return false;
+  // }
 
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 + 1;
