@@ -93,7 +93,7 @@ bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
   return false;
 }
 
-int get_placement(Matrix grid, Block current) {
+int get_grid_placement(Matrix grid, Block current) {
   int offset_y = current.position.y;
   int offset_x = (current.position.x - 1) / 2;
 
@@ -141,9 +141,7 @@ int update_grid(Matrix *grid) {
   return back - front;
 }
 
-void handle_rotate_left(Matrix grid, Block *current) {
-  Matrix standby = matrix_rotate_left(current->shape);
-
+void handle_rotate(Matrix grid, Block *current, Matrix standby) {
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
@@ -152,27 +150,31 @@ void handle_rotate_left(Matrix grid, Block *current) {
   for (int i = 0; i < 3; i++) {
     if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
+      current->shape = standby;
+      return;
+    }
+  }
+
+  int grid_placement = get_grid_placement(grid, *current);
+  if (current->position.y == grid_placement + 1) {
+    offset_y -= 1;
+    if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
+      current->position.x = offset_x * 2 + 1;
+      current->position.y = offset_y;
       current->shape = standby;
       return;
     }
   }
 }
 
+void handle_rotate_left(Matrix grid, Block *current) {
+  Matrix standby = matrix_rotate_left(current->shape);
+  handle_rotate(grid, current, standby);
+}
+
 void handle_rotate_right(Matrix grid, Block *current) {
   Matrix standby = matrix_rotate_right(current->shape);
-
-  int offset_y = current->position.y - 1;
-  int offset_x = (current->position.x - 1) / 2;
-
-  int tries[] = {0, -1, 1};
-
-  for (int i = 0; i < 3; i++) {
-    if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
-      current->position.x = (offset_x + tries[i]) * 2 + 1;
-      current->shape = standby;
-      return;
-    }
-  }
+  handle_rotate(grid, current, standby);
 }
 
 bool can_move_left(Matrix grid, Block current) {

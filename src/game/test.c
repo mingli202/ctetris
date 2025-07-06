@@ -11,7 +11,7 @@ void test_placement(Matrix grid) {
                .type = shapes[i],
                .position = {.x = 1, .y = 1},
                .shape = block_get_shape(shapes[i])};
-    int placement = get_placement(grid, b);
+    int placement = get_grid_placement(grid, b);
 
     char buffer[20];
     sprintf(buffer, "placement %c", letters[i]);
@@ -35,7 +35,7 @@ void test_place_block_1(Matrix *grid) {
       .position = {.x = 1, .y = 1},
       .shape = block_get_shape(I),
   };
-  int res = get_placement(*grid, b_I);
+  int res = get_grid_placement(*grid, b_I);
   assert(res == 18);
 
   place_block(grid, b_I, res);
@@ -66,7 +66,7 @@ void test_place_block_2() {
                .position = {.x = 3, .y = 1},
                .shape = block_get_shape(T)};
 
-  int res = get_placement(grid, b_T);
+  int res = get_grid_placement(grid, b_T);
 
   assert(res == 18);
   place_block(&grid, b_T, res);
@@ -91,7 +91,7 @@ void test_place_block_3(Matrix *grid) {
       .position = {.x = 11, .y = 3},
       .shape = block_get_shape(J),
   };
-  int placement = get_placement(*grid, b_J);
+  int placement = get_grid_placement(*grid, b_J);
   assert(placement == 18);
 
   place_block(grid, b_J, placement);
@@ -119,7 +119,7 @@ void test_place_block_above_1(Matrix *grid) {
                .shape = block_get_shape(O)};
 
   matrix_print(*grid);
-  int placement = get_placement(*grid, b_O);
+  int placement = get_grid_placement(*grid, b_O);
   printf("%i\n", placement);
   assert(placement == 17);
 
@@ -150,7 +150,7 @@ void test_place_block_above_2(Matrix *grid) {
       .shape = block_get_shape(Z),
   };
 
-  int placement = get_placement(*grid, b_Z);
+  int placement = get_grid_placement(*grid, b_Z);
   assert(placement == 18);
 
   place_block(grid, b_Z, placement);
@@ -211,7 +211,7 @@ void test_place_block_above_3(Matrix *grid) {
 
   b_T.shape = matrix_rotate_right(b_T.shape);
 
-  int placement = get_placement(*grid, b_T);
+  int placement = get_grid_placement(*grid, b_T);
   assert(placement == 17);
 
   place_block(grid, b_T, placement);

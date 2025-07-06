@@ -36,7 +36,7 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
 
 int update_board(WINDOW *game_win, WINDOW *next_win, Matrix *grid,
                  Block *current, Block *queue) {
-  int placement = get_placement(*grid, *current);
+  int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
   int score = update_grid(grid);
   block_wclear(game_win, *current);
@@ -106,10 +106,9 @@ void game(enum State *game_state) {
       dispatch(game_win, MOVE_RIGHT, &current, grid);
       break;
     case KEY_DOWN: {
-      int placement = get_placement(grid, current);
+      int grid_placement = get_grid_placement(grid, current);
 
-      if (current.position.y + current.shape.m < dim_game.height - 1 &&
-          current.position.y != placement + 1) {
+      if (current.position.y != grid_placement + 1) {
         dispatch(game_win, MOVE_DOWN, &current, grid);
       }
       break;
@@ -125,9 +124,9 @@ void game(enum State *game_state) {
     then = clock();
 
     if (1 * (then - now) / CLOCKS_PER_SEC >= 1) {
-      int placement = get_placement(grid, current);
+      int grid_placement = get_grid_placement(grid, current);
 
-      if (current.position.y != placement + 1) {
+      if (current.position.y != grid_placement + 1) {
         dispatch(game_win, MOVE_DOWN, &current, grid);
         tick = 3;
       } else {
