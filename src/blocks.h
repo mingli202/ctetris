@@ -11,7 +11,7 @@ enum BlockType { I, J, L, O, S, T, Z };
 typedef struct Point {
   int x;
   int y;
-} Points;
+} Point;
 
 typedef struct Block {
   int color;
