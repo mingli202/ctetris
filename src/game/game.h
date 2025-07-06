@@ -97,26 +97,8 @@ int get_placement(Matrix grid, Block current) {
   int offset_y = current.position.y;
   int offset_x = (current.position.x - 1) / 2;
 
-  int i = current.shape.m - 1;
-  for (; i > 0; i--) {
-    bool has_square = false;
-
-    for (int k = 0; k < current.shape.n; k++) {
-      if (matrix_get(current.shape, i, k) == 1) {
-        has_square = true;
-        break;
-      }
-    }
-
-    if (!has_square) {
-      break;
-    }
-  }
-
-  for (; offset_y < grid.m - (current.shape.m - i); offset_y++) {
-    if (is_block_overlap(grid, current.shape, offset_y, offset_x)) {
-      break;
-    }
+  while (!is_block_overlap(grid, current.shape, offset_y, offset_x)) {
+    offset_y++;
   }
 
   return offset_y - 1;
@@ -178,10 +160,6 @@ void handle_rotate_left(Matrix grid, Block *current) {
 void rotate_right(Matrix grid, Block *current) {}
 
 bool can_move_left(Matrix grid, Block current) {
-  // if (current.position.x < 2) {
-  //   return false;
-  // }
-
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 - 1;
 
@@ -189,10 +167,6 @@ bool can_move_left(Matrix grid, Block current) {
 }
 
 bool can_move_right(Matrix grid, Block current) {
-  // if (current.position.x + current.shape.n * 2 >= dim_game.width - 2) {
-  //   return false;
-  // }
-
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 + 1;
 
