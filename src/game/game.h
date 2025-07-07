@@ -59,8 +59,12 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
   }
 
   *current = queue[0];
-  current->position.x = 5;
-  current->position.y = 1;
+  block_center(dim_game, current);
+  current->position.y = 2;
+
+  if (current->type == I) {
+    current->position.y = 1;
+  }
 
   queue[0] = queue[1];
   queue[0].position.y -= 3;
@@ -197,18 +201,7 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
   block_wclear(game_win, *current);
 
   int grid_placement = get_grid_placement(grid, *current);
-  // save current block position and color
-  int block_y = current->position.y;
-  int block_color = current->color;
-
-  // clear ghost
-  current->position.y = grid_placement + 1;
-  current->color = 9;
-  block_wclear(game_win, *current);
-
-  // restore current block position and color
-  current->position.y = block_y;
-  current->color = block_color;
+  ghost_wclear(game_win, *current, grid_placement);
 
   switch (action) {
   case MOVE_RIGHT:
@@ -234,21 +227,60 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
     break;
   }
 
-  // save current block position and color
-  block_y = current->position.y;
-  block_color = current->color;
-
-  // print ghost
-  current->position.y = grid_placement + 1;
-  current->color = 9;
-  block_wprint(game_win, *current);
-
-  // restore current block position and color
-  current->position.y = block_y;
-  current->color = block_color;
+  ghost_wprint(game_win, *current, grid_placement);
 
   block_wprint(game_win, *current);
   wrefresh(game_win);
+}
+
+void update_hold_window(WINDOW *hold_win, Block *hold) {
+  int x = 3;
+  if (hold->type == I) {
+    x = 2;
+  } else if (hold->type == O) {
+    x = 4;
+  }
+  hold->position.y = 1;
+  hold->position.x = x;
+  hold->shape = block_get_shape(hold->type);
+  block_wprint(hold_win, *hold);
+  wrefresh(hold_win);
+}
+
+int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
+              Block *current, Block *hold, Block queue[], Matrix grid) {
+  int grid_placement = get_grid_placement(grid, *current);
+  block_wclear(game_win, *current);
+  ghost_wclear(game_win, *current, grid_placement);
+
+  if (hold->type == -1) {
+    *hold = block_new(NULL);
+    hold->color = current->color;
+    hold->shape = current->shape;
+    hold->type = current->type;
+    hold->position.y = 2;
+
+    update_current(next_win, game_win, queue, current);
+  } else {
+    block_wclear(hold_win, *hold);
+    Block tmp = *hold;
+    *hold = *current;
+    *current = tmp;
+  }
+  block_center(dim_game, current);
+  if (current->type == I) {
+    current->position.y = 0;
+  }
+
+  grid_placement = get_grid_placement(grid, *current);
+
+  ghost_wprint(game_win, *current, grid_placement);
+  block_wprint(game_win, *current);
+
+  update_hold_window(hold_win, hold);
+  wrefresh(game_win);
+
+  return grid_placement;
 }
 
 #endif

@@ -4,7 +4,7 @@ void print_instructions(WINDOW *win) {
   char *instructions[] = {
       "LEFT - move piece left", "RIGHT - move piece right",
       "DOWN - soft drop",       "SPACE - hard drop",
-      "z - rotate left",        "x - rotate right",
+      "z - rotate left",        "UP - rotate right",
       "c - swap hold",          "q - quit",
   };
 
@@ -43,6 +43,9 @@ int update_board(WINDOW *game_win, WINDOW *next_win, Matrix *grid,
   print_game_win(game_win, *grid);
   update_current(next_win, game_win, queue, current);
 
+  block_wprint(game_win, *current);
+  wrefresh(game_win);
+
   return score;
 }
 
@@ -77,19 +80,27 @@ void game(enum State *game_state) {
 
   int last_color = queue[0].color;
   Block current = block_new(&last_color);
-  current.position.x = 5;
+  current.position.y = 2;
+  block_center(dim_game, &current);
 
   update_next_window(next_win, queue);
+
+  int tick = 3;
+  int score = 0;
+  int grid_placement = get_grid_placement(grid, current);
+
+  Block hold = block_new(NULL);
+  hold.type = -1;
+  bool did_hold = false;
+
+  ghost_wprint(game_win, current, grid_placement);
+
+  block_wprint(game_win, current);
+  wrefresh(game_win);
 
   bool run = true;
   clock_t now, then;
   now = clock();
-
-  int tick = 3;
-
-  int score = 0;
-
-  int grid_placement = get_grid_placement(grid, current);
 
   while (run) {
     int ch = getch();
@@ -100,6 +111,7 @@ void game(enum State *game_state) {
       break;
     case ' ':
       score += update_board(game_win, next_win, &grid, &current, queue);
+      did_hold = false;
       break;
     case KEY_LEFT:
       dispatch(game_win, MOVE_LEFT, &current, grid);
@@ -118,14 +130,22 @@ void game(enum State *game_state) {
     case 'z':
       dispatch(game_win, ROTATE_LEFT, &current, grid);
       break;
-    case 'x':
+    case KEY_UP:
       dispatch(game_win, ROTATE_RIGHT, &current, grid);
+      break;
+    case 'c':
+      if (!did_hold) {
+        grid_placement = swap_hold(hold_win, game_win, next_win, &current,
+                                   &hold, queue, grid);
+        now = clock();
+        did_hold = true;
+      }
       break;
     }
 
     then = clock();
 
-    if (1 * (then - now) / CLOCKS_PER_SEC >= 1) {
+    if (1 * (then - now) / CLOCKS_PER_SEC >= 1.0) {
       grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {
@@ -135,6 +155,7 @@ void game(enum State *game_state) {
         if (tick < 0) {
           score += update_board(game_win, next_win, &grid, &current, queue);
           tick = 2;
+          did_hold = false;
         } else {
           tick--;
         }
