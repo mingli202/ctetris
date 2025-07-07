@@ -128,7 +128,7 @@ void game(enum State *game_state) {
   wrefresh(game_win);
 
   bool run = true;
-  clock_t now, then;
+  clock_t now, then, interval;
   now = clock();
 
   bool is_on_ground = false;
@@ -178,19 +178,22 @@ void game(enum State *game_state) {
     }
 
     then = clock();
+    interval = then - now;
 
     is_on_ground = current.position.y == grid_placement + 1;
 
-    if (is_on_ground && (then - now) / CLOCKS_PER_SEC >= 0.5) {
-      bool end = update_board(game_win, next_win, win, &grid, &current, queue,
-                              &score, &did_hold, &lines_cleared);
-      if (end) {
-        *game_state = OVER;
-        return;
-      }
+    if (is_on_ground) {
+      if (interval >= 0.5 * CLOCKS_PER_SEC) {
+        bool end = update_board(game_win, next_win, win, &grid, &current, queue,
+                                &score, &did_hold, &lines_cleared);
+        if (end) {
+          *game_state = OVER;
+          return;
+        }
 
-      now = then;
-    } else if ((then - now) >=
+        now = then;
+      }
+    } else if (interval >=
                CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1)) {
       grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid);
       now = then;
