@@ -89,6 +89,11 @@ void game(enum State *game_state) {
 
   int score = 0;
 
+  int grid_placement = get_grid_placement(grid, current);
+
+  Block ghost = block_new(&last_color);
+  ghost.color = 9;
+
   while (run) {
     int ch = getch();
 
@@ -106,7 +111,7 @@ void game(enum State *game_state) {
       dispatch(game_win, MOVE_RIGHT, &current, grid);
       break;
     case KEY_DOWN: {
-      int grid_placement = get_grid_placement(grid, current);
+      grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {
         dispatch(game_win, MOVE_DOWN, &current, grid);
@@ -124,7 +129,7 @@ void game(enum State *game_state) {
     then = clock();
 
     if (1 * (then - now) / CLOCKS_PER_SEC >= 1) {
-      int grid_placement = get_grid_placement(grid, current);
+      grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {
         dispatch(game_win, MOVE_DOWN, &current, grid);

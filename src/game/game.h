@@ -196,6 +196,20 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
               Matrix grid) {
   block_wclear(game_win, *current);
 
+  int grid_placement = get_grid_placement(grid, *current);
+  // save current block position and color
+  int block_y = current->position.y;
+  int block_color = current->color;
+
+  // clear ghost
+  current->position.y = grid_placement + 1;
+  current->color = 9;
+  block_wclear(game_win, *current);
+
+  // restore current block position and color
+  current->position.y = block_y;
+  current->color = block_color;
+
   switch (action) {
   case MOVE_RIGHT:
     if (can_move_right(grid, *current)) {
@@ -217,6 +231,21 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
     handle_rotate_right(grid, current);
     break;
   }
+
+  grid_placement = get_grid_placement(grid, *current);
+
+  // save current block position and color
+  block_y = current->position.y;
+  block_color = current->color;
+
+  // print ghost
+  current->position.y = grid_placement + 1;
+  current->color = 9;
+  block_wprint(game_win, *current);
+
+  // restore current block position and color
+  current->position.y = block_y;
+  current->color = block_color;
 
   block_wprint(game_win, *current);
   wrefresh(game_win);
