@@ -258,6 +258,7 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
     hold->color = current->color;
     hold->shape = current->shape;
     hold->type = current->type;
+    hold->position.y = 2;
 
     update_current(next_win, game_win, queue, current);
   } else {
