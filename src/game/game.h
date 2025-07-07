@@ -228,6 +228,7 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
     current->position.y++;
     break;
   case ROTATE_LEFT:
+
     grid_placement = handle_rotate_left(grid, current);
     break;
   case ROTATE_RIGHT:
