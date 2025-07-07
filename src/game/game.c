@@ -63,6 +63,8 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   print_game_win(game_win, *grid);
   update_current(next_win, game_win, queue, current);
 
+  placement = get_grid_placement(*grid, *current);
+  ghost_wprint(game_win, *current, placement);
   block_wprint(game_win, *current);
   wrefresh(game_win);
 
