@@ -170,13 +170,7 @@ Block block_new(int *last_color) {
 }
 
 void block_center(Dimensions dim, Block *block) {
-  block->position.x = (dim.x - 2 - block->shape.n * 2) / 2 - 1;
-
-  if (block->type == I) {
-    block->position.x -= 3;
-  } else if (block->type == O) {
-    block->position.x -= 1;
-  }
+  block->position.x = ((dim.width - dim.box) / 4 - block->shape.n / 2) * 2 + 1;
 }
 
 void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
