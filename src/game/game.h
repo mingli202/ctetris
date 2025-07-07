@@ -144,7 +144,7 @@ int update_grid(Matrix *grid) {
   return back - front;
 }
 
-int handle_rotate(Matrix grid, Block *current, Matrix standby) {
+int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
@@ -154,6 +154,7 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby) {
     if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->shape = standby;
+      *now = clock();
       break;
     }
   }
@@ -166,20 +167,21 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby) {
       current->position.y = offset_y + 1;
       current->shape = standby;
       grid_placement = get_grid_placement(grid, *current);
+      *now = clock();
     }
   }
 
   return grid_placement;
 }
 
-int handle_rotate_left(Matrix grid, Block *current) {
+int handle_rotate_left(Matrix grid, Block *current, clock_t *now) {
   Matrix standby = matrix_rotate_left(current->shape);
-  return handle_rotate(grid, current, standby);
+  return handle_rotate(grid, current, standby, now);
 }
 
-int handle_rotate_right(Matrix grid, Block *current) {
+int handle_rotate_right(Matrix grid, Block *current, clock_t *now) {
   Matrix standby = matrix_rotate_right(current->shape);
-  return handle_rotate(grid, current, standby);
+  return handle_rotate(grid, current, standby, now);
 }
 
 bool can_move_left(Matrix grid, Block current) {
@@ -196,8 +198,8 @@ bool can_move_right(Matrix grid, Block current) {
   return !is_block_overlap(grid, current.shape, offset_y, offset_x);
 }
 
-int dispatch(WINDOW *game_win, enum Action action, Block *current,
-             Matrix grid) {
+int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
+             clock_t *now) {
   block_wclear(game_win, *current);
 
   int grid_placement = get_grid_placement(grid, *current);
@@ -219,13 +221,14 @@ int dispatch(WINDOW *game_win, enum Action action, Block *current,
   case MOVE_DOWN:
     if (current->position.y != grid_placement + 1) {
       current->position.y++;
+      *now = clock();
     }
     break;
   case ROTATE_LEFT:
-    grid_placement = handle_rotate_left(grid, current);
+    grid_placement = handle_rotate_left(grid, current, now);
     break;
   case ROTATE_RIGHT:
-    grid_placement = handle_rotate_right(grid, current);
+    grid_placement = handle_rotate_right(grid, current, now);
     break;
   }
 

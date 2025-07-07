@@ -152,23 +152,20 @@ void game(enum State *game_state) {
       break;
     }
     case KEY_LEFT:
-      grid_placement = dispatch(game_win, MOVE_LEFT, &current, grid);
+      grid_placement = dispatch(game_win, MOVE_LEFT, &current, grid, &now);
       break;
     case KEY_RIGHT:
-      grid_placement = dispatch(game_win, MOVE_RIGHT, &current, grid);
+      grid_placement = dispatch(game_win, MOVE_RIGHT, &current, grid, &now);
       break;
     case KEY_DOWN: {
-      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid);
-      now = clock();
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &now);
       break;
     }
     case 'z':
-      grid_placement = dispatch(game_win, ROTATE_LEFT, &current, grid);
-      now = clock();
+      grid_placement = dispatch(game_win, ROTATE_LEFT, &current, grid, &now);
       break;
     case KEY_UP:
-      grid_placement = dispatch(game_win, ROTATE_RIGHT, &current, grid);
-      now = clock();
+      grid_placement = dispatch(game_win, ROTATE_RIGHT, &current, grid, &now);
       break;
     case 'c':
       if (!did_hold) {
@@ -198,8 +195,7 @@ void game(enum State *game_state) {
       }
     } else if (interval >=
                CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1)) {
-      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid);
-      now = then;
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &now);
     }
   }
 
