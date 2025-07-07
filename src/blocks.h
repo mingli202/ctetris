@@ -175,8 +175,22 @@ void block_center(Dimensions dim, Block *block) {
 
 void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
   block.position.y = grid_placement + 1;
-  block.color = 9;
-  block_wprint(game_win, block);
+  block.color = 8;
+
+  int x = block.position.x;
+  int y = block.position.y;
+
+  wattron(game_win, COLOR_PAIR(block.color));
+
+  for (int i = block.shape.m - 1; i >= 0; i--) {
+    for (int k = 0; k < block.shape.n; k++) {
+      if (matrix_get(block.shape, i, k) == 1) {
+        mvwprintw(game_win, y + i, x + k * 2, "[]");
+      }
+    }
+  }
+
+  wattroff(game_win, COLOR_PAIR(block.color));
 }
 
 void ghost_wclear(WINDOW *game_win, Block block, int grid_placement) {
