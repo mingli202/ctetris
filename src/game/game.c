@@ -14,9 +14,11 @@ void print_instructions(WINDOW *win) {
   wrefresh(win);
 }
 
-void print_score(WINDOW *win, int score) {
+void print_stats(WINDOW *win, int score, int level) {
   mvwprintw(win, LINES - 2, (COLS - dim_game.width) / 2 - dim_hold.width,
             "Score: %d", score);
+  mvwprintw(win, LINES - 1, (COLS - dim_game.width) / 2 - dim_hold.width,
+            "Level: %d", level);
   wrefresh(win);
 }
 
@@ -41,12 +43,18 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
 }
 
 void update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
-                  Block *current, Block *queue, int *score, bool *did_hold) {
+                  Block *current, Block *queue, int *score, bool *did_hold,
+                  int level) {
   int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
 
-  *score += update_grid(grid);
-  print_score(win, *score);
+  int line_cleared = update_grid(grid);
+  if (line_cleared > 0 && line_cleared <= 4) {
+    int score_mapping[] = {100, 300, 500, 800};
+    *score += score_mapping[line_cleared - 1] * level;
+  }
+
+  print_stats(win, *score, level);
 
   block_wclear(game_win, *current);
   print_game_win(game_win, *grid);
@@ -98,7 +106,7 @@ void game(enum State *game_state) {
   int score = 0;
   int level = 1;
   int grid_placement = get_grid_placement(grid, current);
-  print_score(win, score);
+  print_stats(win, score, level);
 
   Block hold = block_new(NULL);
   hold.type = -1;
@@ -122,7 +130,7 @@ void game(enum State *game_state) {
       break;
     case ' ':
       update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                   &did_hold);
+                   &did_hold, level);
       break;
     case KEY_LEFT:
       dispatch(game_win, MOVE_LEFT, &current, grid);
@@ -166,7 +174,7 @@ void game(enum State *game_state) {
         if (tick < 0) {
 
           update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                       &did_hold);
+                       &did_hold, level);
           tick = 2;
         } else {
           tick--;
