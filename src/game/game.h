@@ -160,9 +160,9 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby) {
   if (current->position.y == grid_placement + 1) {
     offset_y -= 1;
     if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
-      current->position.x = offset_x * 2 + 1;
-      current->position.y = offset_y;
+      current->position.y = offset_y + 1;
       current->shape = standby;
+      grid_placement = get_grid_placement(grid, *current);
     }
   }
 
