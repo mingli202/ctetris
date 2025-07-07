@@ -87,6 +87,7 @@ void game(enum State *game_state) {
 
   int tick = 3;
   int score = 0;
+  int level = 1;
   int grid_placement = get_grid_placement(grid, current);
 
   Block hold = block_new(NULL);
@@ -145,7 +146,7 @@ void game(enum State *game_state) {
 
     then = clock();
 
-    if (1 * (then - now) / CLOCKS_PER_SEC >= 1.0) {
+    if ((then - now) >= CLOCKS_PER_SEC * calculate_speed(level)) {
       grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {

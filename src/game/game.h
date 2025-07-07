@@ -283,4 +283,21 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   return grid_placement;
 }
 
+double calculate_speed(int level) {
+  level--;
+
+  double speed_curve[] = {
+      1.0,         0.793,       0.617796,    0.472729139, 0.355196928,
+      0.26200355,  0.189677245, 0.134734731, 0.093882249, 0.064151585,
+      0.042976258, 0.028217678, 0.018153329, 0.011439342, 0.007058616,
+      0.004263557, 0.002520084, 0.001457139, 0.000823907, 0.000455398,
+  };
+
+  if (level > 19) {
+    level = 19;
+  }
+
+  return speed_curve[level];
+}
+
 #endif
