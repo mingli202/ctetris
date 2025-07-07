@@ -91,9 +91,6 @@ void game(enum State *game_state) {
 
   int grid_placement = get_grid_placement(grid, current);
 
-  Block ghost = block_new(&last_color);
-  ghost.color = 9;
-
   while (run) {
     int ch = getch();
 
