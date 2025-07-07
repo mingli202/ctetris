@@ -95,7 +95,7 @@ Matrix block_get_shape(enum BlockType type) {
     break;
   }
   case T: {
-    int block[] = {1, 1, 1, 0, 1, 0, 0, 0, 0};
+    int block[] = {0, 1, 0, 1, 1, 1, 0, 0, 0};
     R = matrix_from(3, 3, block);
     break;
   }
