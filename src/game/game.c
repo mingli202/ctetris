@@ -44,17 +44,20 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
 
 void update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
                   Block *current, Block *queue, int *score, bool *did_hold,
-                  int level) {
+                  int *lines_cleared) {
   int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
 
+  // scoring
   int line_cleared = update_grid(grid);
+  *lines_cleared += line_cleared;
+
   if (line_cleared > 0 && line_cleared <= 4) {
     int score_mapping[] = {100, 300, 500, 800};
-    *score += score_mapping[line_cleared - 1] * level;
+    *score += score_mapping[line_cleared - 1] * (*lines_cleared / 10 + 1);
   }
 
-  print_stats(win, *score, level);
+  print_stats(win, *score, *lines_cleared / 10 + 1);
 
   block_wclear(game_win, *current);
   print_game_win(game_win, *grid);
@@ -104,9 +107,9 @@ void game(enum State *game_state) {
 
   int tick = 3;
   int score = 0;
-  int level = 1;
+  int lines_cleared = 0;
   int grid_placement = get_grid_placement(grid, current);
-  print_stats(win, score, level);
+  print_stats(win, score, lines_cleared / 10 + 1);
 
   Block hold = block_new(NULL);
   hold.type = -1;
@@ -130,7 +133,7 @@ void game(enum State *game_state) {
       break;
     case ' ':
       update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                   &did_hold, level);
+                   &did_hold, &lines_cleared);
       break;
     case KEY_LEFT:
       dispatch(game_win, MOVE_LEFT, &current, grid);
@@ -164,7 +167,8 @@ void game(enum State *game_state) {
 
     then = clock();
 
-    if ((then - now) >= CLOCKS_PER_SEC * calculate_speed(level)) {
+    if ((then - now) >=
+        CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1)) {
       grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {
@@ -172,9 +176,8 @@ void game(enum State *game_state) {
         tick = 3;
       } else {
         if (tick < 0) {
-
           update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                       &did_hold, level);
+                       &did_hold, &lines_cleared);
           tick = 2;
         } else {
           tick--;
