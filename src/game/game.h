@@ -196,8 +196,8 @@ bool can_move_right(Matrix grid, Block current) {
   return !is_block_overlap(grid, current.shape, offset_y, offset_x);
 }
 
-void dispatch(WINDOW *game_win, enum Action action, Block *current,
-              Matrix grid) {
+int dispatch(WINDOW *game_win, enum Action action, Block *current,
+             Matrix grid) {
   block_wclear(game_win, *current);
 
   int grid_placement = get_grid_placement(grid, *current);
@@ -217,7 +217,9 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
     }
     break;
   case MOVE_DOWN:
-    current->position.y++;
+    if (current->position.y != grid_placement + 1) {
+      current->position.y++;
+    }
     break;
   case ROTATE_LEFT:
     grid_placement = handle_rotate_left(grid, current);
@@ -231,6 +233,8 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
 
   block_wprint(game_win, *current);
   wrefresh(game_win);
+
+  return grid_placement;
 }
 
 void update_hold_window(WINDOW *hold_win, Block *hold) {

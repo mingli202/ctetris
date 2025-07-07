@@ -42,7 +42,7 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
   wrefresh(game_win);
 }
 
-void update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
+bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
                   Block *current, Block *queue, int *score, bool *did_hold,
                   int *lines_cleared) {
   int placement = get_grid_placement(*grid, *current);
@@ -67,6 +67,11 @@ void update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   wrefresh(game_win);
 
   *did_hold = false;
+
+  int offset_y = current->position.y - 1;
+  int offset_x = (current->position.x - 1) / 2;
+
+  return is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }
 
 void game(enum State *game_state) {
@@ -124,6 +129,8 @@ void game(enum State *game_state) {
   clock_t now, then;
   now = clock();
 
+  bool is_on_ground = false;
+
   while (run) {
     int ch = getch();
 
@@ -131,29 +138,32 @@ void game(enum State *game_state) {
     case 'q':
       run = false;
       break;
-    case ' ':
-      update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                   &did_hold, &lines_cleared);
+    case ' ': {
+      bool end = update_board(game_win, next_win, win, &grid, &current, queue,
+                              &score, &did_hold, &lines_cleared);
+
+      if (end) {
+        *game_state = OVER;
+        return;
+      }
+      now = clock();
       break;
+    }
     case KEY_LEFT:
-      dispatch(game_win, MOVE_LEFT, &current, grid);
+      grid_placement = dispatch(game_win, MOVE_LEFT, &current, grid);
       break;
     case KEY_RIGHT:
-      dispatch(game_win, MOVE_RIGHT, &current, grid);
+      grid_placement = dispatch(game_win, MOVE_RIGHT, &current, grid);
       break;
     case KEY_DOWN: {
-      grid_placement = get_grid_placement(grid, current);
-
-      if (current.position.y != grid_placement + 1) {
-        dispatch(game_win, MOVE_DOWN, &current, grid);
-      }
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid);
       break;
     }
     case 'z':
-      dispatch(game_win, ROTATE_LEFT, &current, grid);
+      grid_placement = dispatch(game_win, ROTATE_LEFT, &current, grid);
       break;
     case KEY_UP:
-      dispatch(game_win, ROTATE_RIGHT, &current, grid);
+      grid_placement = dispatch(game_win, ROTATE_RIGHT, &current, grid);
       break;
     case 'c':
       if (!did_hold) {
@@ -167,22 +177,20 @@ void game(enum State *game_state) {
 
     then = clock();
 
-    if ((then - now) >=
-        CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1)) {
-      grid_placement = get_grid_placement(grid, current);
+    is_on_ground = current.position.y == grid_placement + 1;
 
-      if (current.position.y != grid_placement + 1) {
-        dispatch(game_win, MOVE_DOWN, &current, grid);
-        tick = 3;
-      } else {
-        if (tick < 0) {
-          update_board(game_win, next_win, win, &grid, &current, queue, &score,
-                       &did_hold, &lines_cleared);
-          tick = 2;
-        } else {
-          tick--;
-        }
+    if (is_on_ground && (then - now) / CLOCKS_PER_SEC >= 0.5) {
+      bool end = update_board(game_win, next_win, win, &grid, &current, queue,
+                              &score, &did_hold, &lines_cleared);
+      if (end) {
+        *game_state = OVER;
+        return;
       }
+
+      now = then;
+    } else if ((then - now) >=
+               CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1)) {
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid);
       now = then;
     }
   }
