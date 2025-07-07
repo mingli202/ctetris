@@ -14,6 +14,12 @@ void print_instructions(WINDOW *win) {
   wrefresh(win);
 }
 
+void print_score(WINDOW *win, int score) {
+  mvwprintw(win, LINES - 2, (COLS - dim_game.width) / 2 - dim_hold.width,
+            "Score: %d", score);
+  wrefresh(win);
+}
+
 WINDOW *create_window_box(int height, int width, int y, int x, char word[]) {
   WINDOW *win = newwin(height, width, y, x);
   box(win, 0, 0);
@@ -34,11 +40,14 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
   wrefresh(game_win);
 }
 
-int update_board(WINDOW *game_win, WINDOW *next_win, Matrix *grid,
-                 Block *current, Block *queue) {
+void update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
+                  Block *current, Block *queue, int *score, bool *did_hold) {
   int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
-  int score = update_grid(grid);
+
+  *score += update_grid(grid);
+  print_score(win, *score);
+
   block_wclear(game_win, *current);
   print_game_win(game_win, *grid);
   update_current(next_win, game_win, queue, current);
@@ -46,7 +55,7 @@ int update_board(WINDOW *game_win, WINDOW *next_win, Matrix *grid,
   block_wprint(game_win, *current);
   wrefresh(game_win);
 
-  return score;
+  *did_hold = false;
 }
 
 void game(enum State *game_state) {
@@ -89,6 +98,7 @@ void game(enum State *game_state) {
   int score = 0;
   int level = 1;
   int grid_placement = get_grid_placement(grid, current);
+  print_score(win, score);
 
   Block hold = block_new(NULL);
   hold.type = -1;
@@ -111,8 +121,8 @@ void game(enum State *game_state) {
       run = false;
       break;
     case ' ':
-      score += update_board(game_win, next_win, &grid, &current, queue);
-      did_hold = false;
+      update_board(game_win, next_win, win, &grid, &current, queue, &score,
+                   &did_hold);
       break;
     case KEY_LEFT:
       dispatch(game_win, MOVE_LEFT, &current, grid);
@@ -154,9 +164,10 @@ void game(enum State *game_state) {
         tick = 3;
       } else {
         if (tick < 0) {
-          score += update_board(game_win, next_win, &grid, &current, queue);
+
+          update_board(game_win, next_win, win, &grid, &current, queue, &score,
+                       &did_hold);
           tick = 2;
-          did_hold = false;
         } else {
           tick--;
         }
