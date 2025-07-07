@@ -96,6 +96,7 @@ void game(enum State *game_state) {
 
   Block hold = block_new(NULL);
   hold.type = -1;
+  bool did_hold = false;
 
   while (run) {
     int ch = getch();
@@ -106,6 +107,7 @@ void game(enum State *game_state) {
       break;
     case ' ':
       score += update_board(game_win, next_win, &grid, &current, queue);
+      did_hold = false;
       break;
     case KEY_LEFT:
       dispatch(game_win, MOVE_LEFT, &current, grid);
@@ -128,9 +130,12 @@ void game(enum State *game_state) {
       dispatch(game_win, ROTATE_RIGHT, &current, grid);
       break;
     case 'c':
-      grid_placement =
-          swap_hold(hold_win, game_win, next_win, &current, &hold, queue, grid);
-      now = clock();
+      if (!did_hold) {
+        grid_placement = swap_hold(hold_win, game_win, next_win, &current,
+                                   &hold, queue, grid);
+        now = clock();
+        did_hold = true;
+      }
       break;
     }
 
@@ -146,6 +151,7 @@ void game(enum State *game_state) {
         if (tick < 0) {
           score += update_board(game_win, next_win, &grid, &current, queue);
           tick = 2;
+          did_hold = false;
         } else {
           tick--;
         }
