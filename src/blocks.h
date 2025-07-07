@@ -51,7 +51,7 @@ Matrix get_shape(enum BlockType type) {
     break;
   }
   case T: {
-    int block[] = {1, 1, 1, 0, 1, 0};
+    int block[] = {0, 1, 0, 1, 1, 1};
     R = matrix_from(2, 3, block);
     break;
   }
