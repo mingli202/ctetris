@@ -37,7 +37,6 @@ void update_next_window(WINDOW *next_win, Block queue[]) {
     }
 
     for (int row = 0; row < block.m; row++) {
-
       for (int col = 0; col < block.n; col++) {
         if (matrix_get(block, row, col) == 1) {
           mvwprintw(next_win, i * 3 + row + 1 + offset_y,
@@ -228,7 +227,6 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
     current->position.y++;
     break;
   case ROTATE_LEFT:
-
     grid_placement = handle_rotate_left(grid, current);
     break;
   case ROTATE_RIGHT:
