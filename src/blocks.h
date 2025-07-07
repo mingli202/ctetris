@@ -168,4 +168,15 @@ Block block_new(int *last_color) {
   return b;
 }
 
+void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
+  block.position.y = grid_placement + 1;
+  block.color = 9;
+  block_wprint(game_win, block);
+}
+
+void ghost_wclear(WINDOW *game_win, Block block, int grid_placement) {
+  block.position.y = grid_placement + 1;
+  block.color = 9;
+  block_wclear(game_win, block);
+}
 #endif
