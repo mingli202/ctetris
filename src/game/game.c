@@ -43,6 +43,9 @@ int update_board(WINDOW *game_win, WINDOW *next_win, Matrix *grid,
   print_game_win(game_win, *grid);
   update_current(next_win, game_win, queue, current);
 
+  block_wprint(game_win, *current);
+  wrefresh(game_win);
+
   return score;
 }
 
@@ -77,7 +80,7 @@ void game(enum State *game_state) {
 
   int last_color = queue[0].color;
   Block current = block_new(&last_color);
-  current.position.x = 5;
+  block_center(dim_game, &current);
 
   update_next_window(next_win, queue);
 
@@ -90,6 +93,9 @@ void game(enum State *game_state) {
   int score = 0;
 
   int grid_placement = get_grid_placement(grid, current);
+
+  Block hold = block_new(NULL);
+  hold.type = -1;
 
   while (run) {
     int ch = getch();
@@ -120,6 +126,11 @@ void game(enum State *game_state) {
       break;
     case 'x':
       dispatch(game_win, ROTATE_RIGHT, &current, grid);
+      break;
+    case 'c':
+      grid_placement = swap_hold(hold_win, game_win, next_win, &current, &hold,
+                                 queue, grid_placement, grid);
+      now = clock();
       break;
     }
 
