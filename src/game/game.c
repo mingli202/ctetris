@@ -4,7 +4,7 @@ void print_instructions(WINDOW *win) {
   char *instructions[] = {
       "LEFT - move piece left", "RIGHT - move piece right",
       "DOWN - soft drop",       "SPACE - hard drop",
-      "z - rotate left",        "x - rotate right",
+      "z - rotate left",        "UP - rotate right",
       "c - swap hold",          "q - quit",
   };
 
@@ -84,19 +84,22 @@ void game(enum State *game_state) {
 
   update_next_window(next_win, queue);
 
-  bool run = true;
-  clock_t now, then;
-  now = clock();
-
   int tick = 3;
-
   int score = 0;
-
   int grid_placement = get_grid_placement(grid, current);
 
   Block hold = block_new(NULL);
   hold.type = -1;
   bool did_hold = false;
+
+  ghost_wprint(game_win, current, grid_placement);
+
+  block_wprint(game_win, current);
+  wrefresh(game_win);
+
+  bool run = true;
+  clock_t now, then;
+  now = clock();
 
   while (run) {
     int ch = getch();
@@ -126,7 +129,7 @@ void game(enum State *game_state) {
     case 'z':
       dispatch(game_win, ROTATE_LEFT, &current, grid);
       break;
-    case 'x':
+    case KEY_UP:
       dispatch(game_win, ROTATE_RIGHT, &current, grid);
       break;
     case 'c':
@@ -141,7 +144,7 @@ void game(enum State *game_state) {
 
     then = clock();
 
-    if (1 * (then - now) / CLOCKS_PER_SEC >= 1) {
+    if (1 * (then - now) / CLOCKS_PER_SEC >= 1.0) {
       grid_placement = get_grid_placement(grid, current);
 
       if (current.position.y != grid_placement + 1) {
