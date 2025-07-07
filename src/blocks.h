@@ -2,6 +2,7 @@
 #define BLOCK_H
 
 #include "matrix/matrix.h"
+#include "settings.h"
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
@@ -168,6 +169,16 @@ Block block_new(int *last_color) {
   return b;
 }
 
+void block_center(Dimensions dim, Block *block) {
+  block->position.x = (dim.x - 2 - block->shape.n * 2) / 2 - 1;
+
+  if (block->type == I) {
+    block->position.x -= 3;
+  } else if (block->type == O) {
+    block->position.x -= 1;
+  }
+}
+
 void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
   block.position.y = grid_placement + 1;
   block.color = 9;
@@ -179,4 +190,5 @@ void ghost_wclear(WINDOW *game_win, Block block, int grid_placement) {
   block.color = 9;
   block_wclear(game_win, block);
 }
+
 #endif
