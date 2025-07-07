@@ -1,8 +1,2 @@
 clang
--I/opt/homebrew/Cellar/cjson/1.7.18/include
 -I/opt/homebrew/Cellar/cjson/1.7.18/include/cjson
--D_DARWIN_C_SOURCE
--L/opt/homebrew/Cellar/cjson/1.7.18/lib
--lcjson
--L/usr/lib
--lncurses

@@ -11,7 +11,7 @@ enum BlockType { I, J, L, O, S, T, Z };
 typedef struct Point {
   int x;
   int y;
-} Points;
+} Point;
 
 typedef struct Block {
   int color;
@@ -20,7 +20,7 @@ typedef struct Block {
   enum BlockType type;
 } Block;
 
-Matrix block_get_shape(enum BlockType type) {
+Matrix get_shape(enum BlockType type) {
   Matrix R;
 
   switch (type) {
@@ -57,6 +57,50 @@ Matrix block_get_shape(enum BlockType type) {
   case Z: {
     int block[] = {1, 1, 0, 0, 1, 1};
     R = matrix_from(2, 3, block);
+    break;
+  }
+  }
+
+  return R;
+}
+
+Matrix block_get_shape(enum BlockType type) {
+  Matrix R;
+
+  switch (type) {
+  case I: {
+    int block[] = {0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+    R = matrix_from(4, 4, block);
+    break;
+  }
+  case J: {
+    int block[] = {1, 0, 0, 1, 1, 1, 0, 0, 0};
+    R = matrix_from(3, 3, block);
+    break;
+  }
+  case L: {
+    int block[] = {0, 0, 1, 1, 1, 1, 0, 0, 0};
+    R = matrix_from(3, 3, block);
+    break;
+  }
+  case O: {
+    int block[] = {1, 1, 1, 1};
+    R = matrix_from(2, 2, block);
+    break;
+  }
+  case S: {
+    int block[] = {0, 1, 1, 1, 1, 0, 0, 0, 0};
+    R = matrix_from(3, 3, block);
+    break;
+  }
+  case T: {
+    int block[] = {1, 1, 1, 0, 1, 0, 0, 0, 0};
+    R = matrix_from(3, 3, block);
+    break;
+  }
+  case Z: {
+    int block[] = {1, 1, 0, 0, 1, 1, 0, 0, 0};
+    R = matrix_from(3, 3, block);
     break;
   }
   }

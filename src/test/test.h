@@ -66,7 +66,7 @@ Result matrix_compare(Matrix a, Matrix b, char *name) {
   return res;
 }
 
-void assert_matrix(Result res) {
+void assert_res(Result res) {
   if (res.success) {
     success(res.name);
   } else {
@@ -78,7 +78,7 @@ void assert_bool(bool exp, char *name) {
   if (exp) {
     success(name);
   } else {
-    fail(name, "False", NULL);
+    fail(name, "False", "");
   }
 }
 

@@ -32,7 +32,8 @@ Matrix matrix_from(int m, int n, int arr[]) {
 }
 
 int matrix_get(Matrix matrix, int row, int column) {
-  assert(row < matrix.m && row >= 0);
+  assert(row < matrix.m);
+  assert(row >= 0);
   assert(column < matrix.n);
   assert(column >= 0);
 
@@ -45,7 +46,8 @@ int matrix_get(Matrix matrix, int row, int column) {
 }
 
 void matrix_set(Matrix *matrix, int row, int column, int value) {
-  assert(row < matrix->m && row >= 0);
+  assert(row < matrix->m);
+  assert(row >= 0);
   assert(column < matrix->n);
   assert(column >= 0);
 

@@ -8,7 +8,6 @@
 
 #include <assert.h>
 #include <ncurses.h>
-#include <time.h>
 
 enum Action { MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ROTATE_LEFT, ROTATE_RIGHT };
 
@@ -23,8 +22,31 @@ void create_initial_queue(Block *queue) {
 
 void update_next_window(WINDOW *next_win, Block queue[]) {
   for (int i = 0; i < 3; i++) {
-    block_wprint(next_win, queue[i]);
+    Matrix block = get_shape(queue[i].type);
+    wattron(next_win, COLOR_PAIR(queue[i].color));
+
+    int offset_x = 2;
+    int offset_y = 0;
+
+    if (queue[i].type == I) {
+      offset_y = 1;
+      offset_x = 1;
+    }
+    if (queue[i].type == O) {
+      offset_x = 3;
+    }
+
+    for (int row = 0; row < block.m; row++) {
+      for (int col = 0; col < block.n; col++) {
+        if (matrix_get(block, row, col) == 1) {
+          mvwprintw(next_win, i * 3 + row + 1 + offset_y,
+                    1 + col * 2 + offset_x, "  ");
+        }
+      }
+    }
+    wattroff(next_win, COLOR_PAIR(queue[i].color));
   }
+
   wrefresh(next_win);
 }
 
@@ -57,9 +79,12 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
 bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
   for (int i = 0; i < shape.m; i++) {
     for (int k = 0; k < shape.n; k++) {
-      if (matrix_get(grid, i + offset_y, k + offset_x) != 0 &&
-          matrix_get(shape, i, k) == 1) {
-        return true;
+      if (matrix_get(shape, i, k) == 1) {
+        if (!(i + offset_y >= 0 && i + offset_y < grid.m) ||
+            !(k + offset_x >= 0 && k + offset_x < grid.n) ||
+            matrix_get(grid, i + offset_y, k + offset_x) != 0) {
+          return true;
+        }
       }
     }
   }
@@ -67,23 +92,20 @@ bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
   return false;
 }
 
-int get_placement(Matrix grid, Block current) {
+int get_grid_placement(Matrix grid, Block current) {
   int offset_y = current.position.y;
   int offset_x = (current.position.x - 1) / 2;
 
-  for (; offset_y < grid.m - current.shape.m + 1; offset_y++) {
-    if (is_block_overlap(grid, current.shape, offset_y, offset_x)) {
-      break;
-    }
+  while (!is_block_overlap(grid, current.shape, offset_y, offset_x)) {
+    offset_y++;
   }
+
   return offset_y - 1;
 }
 
 void place_block(Matrix *grid, Block current, int placement) {
   int offset_y = placement;
   int offset_x = (current.position.x - 1) / 2;
-
-  assert(placement <= grid->m - current.shape.m);
 
   for (int i = 0; i < current.shape.m; i++) {
     for (int k = 0; k < current.shape.n; k++) {
@@ -118,11 +140,45 @@ int update_grid(Matrix *grid) {
   return back - front;
 }
 
-bool can_move_left(Matrix grid, Block current) {
-  if (current.position.x < 2) {
-    return false;
+int handle_rotate(Matrix grid, Block *current, Matrix standby) {
+  int offset_y = current->position.y - 1;
+  int offset_x = (current->position.x - 1) / 2;
+
+  int tries[] = {0, -1, 1};
+
+  for (int i = 0; i < 3; i++) {
+    if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
+      current->position.x = (offset_x + tries[i]) * 2 + 1;
+      current->shape = standby;
+      break;
+    }
   }
 
+  int grid_placement = get_grid_placement(grid, *current);
+
+  if (current->position.y == grid_placement + 1) {
+    offset_y -= 1;
+    if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
+      current->position.y = offset_y + 1;
+      current->shape = standby;
+      grid_placement = get_grid_placement(grid, *current);
+    }
+  }
+
+  return grid_placement;
+}
+
+int handle_rotate_left(Matrix grid, Block *current) {
+  Matrix standby = matrix_rotate_left(current->shape);
+  return handle_rotate(grid, current, standby);
+}
+
+int handle_rotate_right(Matrix grid, Block *current) {
+  Matrix standby = matrix_rotate_right(current->shape);
+  return handle_rotate(grid, current, standby);
+}
+
+bool can_move_left(Matrix grid, Block current) {
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 - 1;
 
@@ -130,52 +186,66 @@ bool can_move_left(Matrix grid, Block current) {
 }
 
 bool can_move_right(Matrix grid, Block current) {
-  if (current.position.x + current.shape.n * 2 >= dim_game.width - 2) {
-    return false;
-  }
-
   int offset_y = current.position.y - 1;
   int offset_x = (current.position.x - 1) / 2 + 1;
 
   return !is_block_overlap(grid, current.shape, offset_y, offset_x);
 }
 
-void handle_rotate_left(Matrix grid, Block *current) {
-  Matrix standby = matrix_rotate_left(current->shape);
-
-  int offset_y = current->position.y - 1;
-  int offset_x = (current->position.x - 1) / 2 + current->shape.n / 2 - 1;
-
-  int y_f = current->shape.n / 2 - 1;
-}
-
-void handle_rotate_right(Matrix grid, Block *current) {}
-
 void dispatch(WINDOW *game_win, enum Action action, Block *current,
               Matrix grid) {
   block_wclear(game_win, *current);
+
+  int grid_placement = get_grid_placement(grid, *current);
+  // save current block position and color
+  int block_y = current->position.y;
+  int block_color = current->color;
+
+  // clear ghost
+  current->position.y = grid_placement + 1;
+  current->color = 9;
+  block_wclear(game_win, *current);
+
+  // restore current block position and color
+  current->position.y = block_y;
+  current->color = block_color;
 
   switch (action) {
   case MOVE_RIGHT:
     if (can_move_right(grid, *current)) {
       current->position.x += 2;
+      grid_placement = get_grid_placement(grid, *current);
     }
     break;
   case MOVE_LEFT:
     if (can_move_left(grid, *current)) {
       current->position.x -= 2;
+      grid_placement = get_grid_placement(grid, *current);
     }
     break;
   case MOVE_DOWN:
     current->position.y++;
     break;
   case ROTATE_LEFT:
-    handle_rotate_left(grid, current);
+    grid_placement = handle_rotate_left(grid, current);
     break;
   case ROTATE_RIGHT:
-    handle_rotate_right(grid, current);
+    grid_placement = handle_rotate_right(grid, current);
     break;
   }
+
+  // save current block position and color
+  block_y = current->position.y;
+  block_color = current->color;
+
+  // print ghost
+  current->position.y = grid_placement + 1;
+  current->color = 9;
+  block_wprint(game_win, *current);
+
+  // restore current block position and color
+  current->position.y = block_y;
+  current->color = block_color;
 
   block_wprint(game_win, *current);
   wrefresh(game_win);
