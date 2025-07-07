@@ -128,8 +128,8 @@ void game(enum State *game_state) {
       dispatch(game_win, ROTATE_RIGHT, &current, grid);
       break;
     case 'c':
-      grid_placement = swap_hold(hold_win, game_win, next_win, &current, &hold,
-                                 queue, grid_placement, grid);
+      grid_placement =
+          swap_hold(hold_win, game_win, next_win, &current, &hold, queue, grid);
       now = clock();
       break;
     }

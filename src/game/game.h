@@ -248,8 +248,8 @@ void update_hold_window(WINDOW *hold_win, Block *hold) {
 }
 
 int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
-              Block *current, Block *hold, Block queue[], int grid_placement,
-              Matrix grid) {
+              Block *current, Block *hold, Block queue[], Matrix grid) {
+  int grid_placement = get_grid_placement(grid, *current);
   block_wclear(game_win, *current);
   ghost_wclear(game_win, *current, grid_placement);
 
