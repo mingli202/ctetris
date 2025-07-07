@@ -114,7 +114,7 @@ void game(enum State *game_state) {
 
   int tick = 3;
   int score = 0;
-  int lines_cleared = 0;
+  int lines_cleared = 100;
   int grid_placement = get_grid_placement(grid, current);
   print_stats(win, score, lines_cleared / 10 + 1);
 
@@ -163,9 +163,11 @@ void game(enum State *game_state) {
     }
     case 'z':
       grid_placement = dispatch(game_win, ROTATE_LEFT, &current, grid);
+      now = clock();
       break;
     case KEY_UP:
       grid_placement = dispatch(game_win, ROTATE_RIGHT, &current, grid);
+      now = clock();
       break;
     case 'c':
       if (!did_hold) {
