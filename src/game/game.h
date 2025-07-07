@@ -141,7 +141,7 @@ int update_grid(Matrix *grid) {
   return back - front;
 }
 
-void handle_rotate(Matrix grid, Block *current, Matrix standby) {
+int handle_rotate(Matrix grid, Block *current, Matrix standby) {
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
@@ -151,30 +151,32 @@ void handle_rotate(Matrix grid, Block *current, Matrix standby) {
     if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->shape = standby;
-      return;
+      break;
     }
   }
 
   int grid_placement = get_grid_placement(grid, *current);
+
   if (current->position.y == grid_placement + 1) {
     offset_y -= 1;
     if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
       current->position.x = offset_x * 2 + 1;
       current->position.y = offset_y;
       current->shape = standby;
-      return;
     }
   }
+
+  return grid_placement;
 }
 
-void handle_rotate_left(Matrix grid, Block *current) {
+int handle_rotate_left(Matrix grid, Block *current) {
   Matrix standby = matrix_rotate_left(current->shape);
-  handle_rotate(grid, current, standby);
+  return handle_rotate(grid, current, standby);
 }
 
-void handle_rotate_right(Matrix grid, Block *current) {
+int handle_rotate_right(Matrix grid, Block *current) {
   Matrix standby = matrix_rotate_right(current->shape);
-  handle_rotate(grid, current, standby);
+  return handle_rotate(grid, current, standby);
 }
 
 bool can_move_left(Matrix grid, Block current) {
@@ -213,25 +215,25 @@ void dispatch(WINDOW *game_win, enum Action action, Block *current,
   case MOVE_RIGHT:
     if (can_move_right(grid, *current)) {
       current->position.x += 2;
+      grid_placement = get_grid_placement(grid, *current);
     }
     break;
   case MOVE_LEFT:
     if (can_move_left(grid, *current)) {
       current->position.x -= 2;
+      grid_placement = get_grid_placement(grid, *current);
     }
     break;
   case MOVE_DOWN:
     current->position.y++;
     break;
   case ROTATE_LEFT:
-    handle_rotate_left(grid, current);
+    grid_placement = handle_rotate_left(grid, current);
     break;
   case ROTATE_RIGHT:
-    handle_rotate_right(grid, current);
+    grid_placement = handle_rotate_right(grid, current);
     break;
   }
-
-  grid_placement = get_grid_placement(grid, *current);
 
   // save current block position and color
   block_y = current->position.y;
