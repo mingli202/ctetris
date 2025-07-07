@@ -191,7 +191,6 @@ bool can_move_right(Matrix grid, Block current) {
   return !is_block_overlap(grid, current.shape, offset_y, offset_x);
 }
 
-// FIX:block printing
 void dispatch(WINDOW *game_win, enum Action action, Block *current,
               Matrix grid) {
   block_wclear(game_win, *current);
