@@ -57,7 +57,10 @@ void print_menu(WINDOW *win, Vec highscores) {
 
   vec_sort(&highscores);
   vec_reverse(&highscores);
-  for (int i = 0; i < highscores.length; i++) {
+
+  int n = highscores.length > 10 ? 10 : highscores.length;
+
+  for (int i = 0; i < n; i++) {
     int score = vec_get(highscores, i);
 
     mvwprintw(win, LINES / 2 + 6 + i, (COLS - 10) / 2, "%i", score);
