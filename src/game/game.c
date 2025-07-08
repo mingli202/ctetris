@@ -76,7 +76,7 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }
 
-void game(enum State *game_state) {
+void game(enum State *game_state, Vec *highscores) {
   WINDOW *win = newwin(0, 0, 0, 0);
   wclear(win);
   wrefresh(win);
@@ -191,7 +191,8 @@ void game(enum State *game_state) {
     }
   }
 
-  *game_state = OVER;
+  *game_state = MENU;
+  vec_push(highscores, score);
 
   delwin(win);
   delwin(game_win);
