@@ -8,7 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum State { MENU, GAME, OVER };
+#include "vec.h"
+
+enum State { MENU, GAME };
 
 void init() {
   initscr(); // init curses
