@@ -2,6 +2,7 @@
 #define TEST_H
 
 #include "../matrix/matrix.h"
+#include "../vec.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -80,6 +81,34 @@ void assert_bool(bool exp, char *name) {
   } else {
     fail(name, "False", "");
   }
+}
+
+Result compare_vec(Vec a, Vec b, char *name) {
+  if (a.length != b.length) {
+    char desc[50];
+    sprintf(desc, "A has length %i but B has length %i", a.length, b.length);
+
+    Result res = {.success = false,
+                  .reason = "Incompatible length",
+                  .desc = desc,
+                  .name = name};
+    return res;
+  }
+
+  for (int i = 0; i < a.length; i++) {
+    if (a.arr[i] != b.arr[i]) {
+      Result res = {.success = false,
+                    .reason = "Comparison Error",
+                    .desc = "Vectors are not equal!",
+                    .name = name};
+
+      vec_print(a);
+      vec_print(b);
+      return res;
+    }
+  }
+
+  return (Result){.success = true, .name = name};
 }
 
 #endif
