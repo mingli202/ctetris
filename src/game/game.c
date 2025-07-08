@@ -107,7 +107,7 @@ void game(enum State *game_state, Vec *highscores) {
 
   int last_color = queue[0].color;
   Block current = block_new(&last_color);
-  current.position.y = 2;
+  current.position.y = 1;
   block_center(dim_game, &current);
 
   update_next_window(next_win, queue);

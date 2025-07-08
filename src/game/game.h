@@ -60,10 +60,10 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
 
   *current = queue[0];
   block_center(dim_game, current);
-  current->position.y = 2;
+  current->position.y = 1;
 
   if (current->type == I) {
-    current->position.y = 1;
+    current->position.y = 0;
   }
 
   queue[0] = queue[1];
