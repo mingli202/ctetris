@@ -73,7 +73,7 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
-  return is_block_overlap(*grid, current->shape, offset_y, offset_x);
+  return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }
 
 void game(enum State *game_state) {
@@ -138,16 +138,12 @@ void game(enum State *game_state) {
 
     switch (ch) {
     case 'q':
-      run = false;
+      quit();
       break;
     case ' ': {
-      bool end = update_board(game_win, next_win, win, &grid, &current, queue,
-                              &score, &did_hold, &lines_cleared);
+      run = update_board(game_win, next_win, win, &grid, &current, queue,
+                         &score, &did_hold, &lines_cleared);
 
-      if (end) {
-        *game_state = OVER;
-        return;
-      }
       now = clock();
       break;
     }
@@ -184,12 +180,8 @@ void game(enum State *game_state) {
 
     if (is_on_ground) {
       if (interval >= 0.5 * CLOCKS_PER_SEC) {
-        bool end = update_board(game_win, next_win, win, &grid, &current, queue,
-                                &score, &did_hold, &lines_cleared);
-        if (end) {
-          *game_state = OVER;
-          return;
-        }
+        run = update_board(game_win, next_win, win, &grid, &current, queue,
+                           &score, &did_hold, &lines_cleared);
 
         now = then;
       }
@@ -199,9 +191,10 @@ void game(enum State *game_state) {
     }
   }
 
+  *game_state = OVER;
+
   delwin(win);
   delwin(game_win);
   delwin(hold_win);
   delwin(next_win);
-  quit();
 }
