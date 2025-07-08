@@ -90,4 +90,27 @@ void vec_print(Vec vec) {
   printf("]\n");
 }
 
+int vec_get(Vec vec, int index) {
+  assert(index < vec.length);
+  assert(index >= 0);
+
+  return vec.arr[index];
+}
+
+int vec_get_last(Vec vec) {
+  assert(vec.length > 0);
+
+  return vec.arr[vec.length - 1];
+}
+
+void vec_reverse(Vec *vec) {
+  int *arr = vec->arr;
+
+  for (int i = 0; i < vec->length / 2; i++) {
+    int temp = arr[i];
+    arr[i] = arr[vec->length - 1 - i];
+    arr[vec->length - 1 - i] = temp;
+  }
+}
+
 #endif
