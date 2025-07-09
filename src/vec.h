@@ -14,8 +14,9 @@ typedef struct Vec {
 Vec vec_new(int capacity) {
   assert(capacity > 0);
 
-  Vec R = {
-      .arr = malloc(capacity * sizeof(int)), .length = 0, .capacity = capacity};
+  Vec R = {.arr = (int *)malloc(capacity * sizeof(int)),
+           .length = 0,
+           .capacity = capacity};
 
   assert(R.arr != NULL);
 
@@ -25,7 +26,7 @@ Vec vec_new(int capacity) {
 void vec_push(Vec *vec, int value) {
   if (vec->length == vec->capacity) {
     vec->capacity += 3;
-    vec->arr = realloc(vec->arr, vec->capacity * sizeof(int));
+    vec->arr = (int *)realloc(vec->arr, vec->capacity * sizeof(int));
   }
 
   vec->arr[vec->length] = value;

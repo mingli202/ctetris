@@ -1,15 +1,28 @@
 #include "game.h"
 
 void print_instructions(WINDOW *win) {
-  char *instructions[] = {
-      "LEFT - move piece left", "RIGHT - move piece right",
-      "DOWN - soft drop",       "SPACE - hard drop",
-      "z - rotate left",        "UP - rotate right",
-      "c - swap hold",          "q - quit",
+  char *instructions_left[] = {
+      "LEFT - move piece left",
+      "RIGHT - move piece right",
+      "DOWN - soft drop",
+      "SPACE - hard drop",
   };
 
-  for (int i = 0; i < 8; i++) {
-    mvwprintw(win, i + 1, (COLS - 22) / 2 - 12, instructions[i]);
+  for (int i = 0; i < 4; i++) {
+    mvwprintw(win, i + 1, (COLS - 22) / 2 - 12, instructions_left[i]);
+  }
+
+  char *instructions_right[] = {
+      "quit - q",
+      "swap hold - c",
+      "rotate left - z",
+      "rotate right - UP",
+  };
+
+  for (int i = 0; i < 4; i++) {
+    int len = strlen(instructions_right[i]);
+    mvwprintw(win, i + 1, COLS / 2 + dim_game.width / 2 + dim_hold.width - len,
+              instructions_right[i]);
   }
   wrefresh(win);
 }

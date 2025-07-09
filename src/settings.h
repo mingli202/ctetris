@@ -4,8 +4,8 @@
 #include <ncurses.h>
 
 typedef struct Dimensions {
-  int width;
   int height;
+  int width;
   int x;
   int y;
   int box;
