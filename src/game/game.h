@@ -155,14 +155,28 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->shape = standby;
       *now = clock();
-      break;
+      return get_grid_placement(grid, *current);
     }
   }
+
+  offset_y++;
+
+  for (int i = 0; i < 3; i++) {
+    if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
+      current->position.x = (offset_x + tries[i]) * 2 + 1;
+      current->position.y = offset_y + 1;
+      current->shape = standby;
+      *now = clock();
+      return get_grid_placement(grid, *current);
+    }
+  }
+
+  offset_y--;
 
   int grid_placement = get_grid_placement(grid, *current);
 
   if (current->position.y == grid_placement + 1) {
-    offset_y -= 1;
+    offset_y--;
     if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
       current->position.y = offset_y + 1;
       current->shape = standby;
