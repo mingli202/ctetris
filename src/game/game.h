@@ -60,10 +60,10 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
 
   *current = queue[0];
   block_center(dim_game, current);
-  current->position.y = 2;
+  current->position.y = 1;
 
   if (current->type == I) {
-    current->position.y = 1;
+    current->position.y = 0;
   }
 
   queue[0] = queue[1];
@@ -155,14 +155,28 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->shape = standby;
       *now = clock();
-      break;
+      return get_grid_placement(grid, *current);
     }
   }
+
+  offset_y++;
+
+  for (int i = 0; i < 3; i++) {
+    if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
+      current->position.x = (offset_x + tries[i]) * 2 + 1;
+      current->position.y = offset_y + 1;
+      current->shape = standby;
+      *now = clock();
+      return get_grid_placement(grid, *current);
+    }
+  }
+
+  offset_y--;
 
   int grid_placement = get_grid_placement(grid, *current);
 
   if (current->position.y == grid_placement + 1) {
-    offset_y -= 1;
+    offset_y--;
     if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
       current->position.y = offset_y + 1;
       current->shape = standby;

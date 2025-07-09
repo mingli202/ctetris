@@ -44,7 +44,7 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
 
 bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
                   Block *current, Block *queue, int *score, bool *did_hold,
-                  int *lines_cleared) {
+                  int *lines_cleared, int *combo_count) {
   int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
 
@@ -52,12 +52,24 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   int line_cleared = update_grid(grid);
   *lines_cleared += line_cleared;
 
+  int level = *lines_cleared / 10 + 1;
+
   if (line_cleared > 0 && line_cleared <= 4) {
     int score_mapping[] = {100, 300, 500, 800};
-    *score += score_mapping[line_cleared - 1] * (*lines_cleared / 10 + 1);
+    int s = score_mapping[line_cleared - 1] * (level);
+
+    if (*combo_count > 0) {
+      s += *combo_count * 50 * level;
+    }
+
+    *score += s;
+
+    *combo_count += 1;
+  } else {
+    *combo_count = -1;
   }
 
-  print_stats(win, *score, *lines_cleared / 10 + 1);
+  print_stats(win, *score, level);
 
   block_wclear(game_win, *current);
   print_game_win(game_win, *grid);
@@ -73,10 +85,10 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
-  return is_block_overlap(*grid, current->shape, offset_y, offset_x);
+  return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }
 
-void game(enum State *game_state) {
+void game(enum State *game_state, Vec *highscores) {
   WINDOW *win = newwin(0, 0, 0, 0);
   wclear(win);
   wrefresh(win);
@@ -107,7 +119,7 @@ void game(enum State *game_state) {
 
   int last_color = queue[0].color;
   Block current = block_new(&last_color);
-  current.position.y = 2;
+  current.position.y = 1;
   block_center(dim_game, &current);
 
   update_next_window(next_win, queue);
@@ -115,6 +127,7 @@ void game(enum State *game_state) {
   int tick = 3;
   int score = 0;
   int lines_cleared = 0;
+  int combo_count = -1;
   int grid_placement = get_grid_placement(grid, current);
   print_stats(win, score, lines_cleared / 10 + 1);
 
@@ -138,16 +151,12 @@ void game(enum State *game_state) {
 
     switch (ch) {
     case 'q':
-      run = false;
+      quit();
       break;
     case ' ': {
-      bool end = update_board(game_win, next_win, win, &grid, &current, queue,
-                              &score, &did_hold, &lines_cleared);
+      run = update_board(game_win, next_win, win, &grid, &current, queue,
+                         &score, &did_hold, &lines_cleared, &combo_count);
 
-      if (end) {
-        *game_state = OVER;
-        return;
-      }
       now = clock();
       break;
     }
@@ -184,12 +193,8 @@ void game(enum State *game_state) {
 
     if (is_on_ground) {
       if (interval >= 0.5 * CLOCKS_PER_SEC) {
-        bool end = update_board(game_win, next_win, win, &grid, &current, queue,
-                                &score, &did_hold, &lines_cleared);
-        if (end) {
-          *game_state = OVER;
-          return;
-        }
+        run = update_board(game_win, next_win, win, &grid, &current, queue,
+                           &score, &did_hold, &lines_cleared, &combo_count);
 
         now = then;
       }
@@ -199,9 +204,11 @@ void game(enum State *game_state) {
     }
   }
 
+  *game_state = MENU;
+  vec_push(highscores, score);
+
   delwin(win);
   delwin(game_win);
   delwin(hold_win);
   delwin(next_win);
-  quit();
 }

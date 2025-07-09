@@ -17,7 +17,7 @@ void menu_select(WINDOW *win, enum MenuOption opt) {
   wrefresh(win);
 }
 
-void print_menu(WINDOW *win) {
+void print_menu(WINDOW *win, Vec highscores) {
   wclear(win);
   wrefresh(win);
 
@@ -41,23 +41,38 @@ void print_menu(WINDOW *win) {
 
   menu_select(win, PLAY);
 
-  int highscore = 0;
+  int last_score = 0;
+  if (highscores.length != 0) {
+    last_score = vec_get_last(highscores);
+  }
 
-  get_highscore(&highscore);
+  int n_digits_highscore = last_score == 0 ? 0 : log10(last_score) + 1;
+  int highscore_row_size = 16 + n_digits_highscore;
 
-  int n_digits_highscore = highscore == 0 ? 0 : log10(highscore) + 1;
-  int highscore_row_size = 11 + n_digits_highscore;
+  mvwprintw(win, LINES / 2 + 3, (COLS - highscore_row_size) / 2,
+            "Previous score: %i", last_score);
 
-  mvwprintw(win, LINES / 2 + 1, (COLS - highscore_row_size) / 2,
-            "Highscore: %i", highscore);
+  // print highscores
+  mvwprintw(win, LINES / 2 + 5, (COLS - 10) / 2, "Highscores");
+
+  vec_sort(&highscores);
+  vec_reverse(&highscores);
+
+  int n = highscores.length > 10 ? 10 : highscores.length;
+
+  for (int i = 0; i < n; i++) {
+    int score = vec_get(highscores, i);
+
+    mvwprintw(win, LINES / 2 + 6 + i, (COLS - 10) / 2, "%i", score);
+  }
 
   wrefresh(win);
 }
 
-void menu(enum State *game_state) {
+void menu(enum State *game_state, Vec *highscores) {
   WINDOW *win = newwin(0, 0, 0, 0);
 
-  print_menu(win);
+  print_menu(win, *highscores);
 
   enum MenuOption menu_opt = PLAY;
 
