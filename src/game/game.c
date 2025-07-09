@@ -44,7 +44,7 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
 
 bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
                   Block *current, Block *queue, int *score, bool *did_hold,
-                  int *lines_cleared) {
+                  int *lines_cleared, int *combo_count) {
   int placement = get_grid_placement(*grid, *current);
   place_block(grid, *current, placement);
 
@@ -52,12 +52,24 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
   int line_cleared = update_grid(grid);
   *lines_cleared += line_cleared;
 
+  int level = *lines_cleared / 10 + 1;
+
   if (line_cleared > 0 && line_cleared <= 4) {
     int score_mapping[] = {100, 300, 500, 800};
-    *score += score_mapping[line_cleared - 1] * (*lines_cleared / 10 + 1);
+    int s = score_mapping[line_cleared - 1] * (level);
+
+    if (*combo_count > 0) {
+      s += *combo_count * 50 * level;
+    }
+
+    *score += s;
+
+    *combo_count += 1;
+  } else {
+    *combo_count = -1;
   }
 
-  print_stats(win, *score, *lines_cleared / 10 + 1);
+  print_stats(win, *score, level);
 
   block_wclear(game_win, *current);
   print_game_win(game_win, *grid);
@@ -115,6 +127,7 @@ void game(enum State *game_state, Vec *highscores) {
   int tick = 3;
   int score = 0;
   int lines_cleared = 0;
+  int combo_count = -1;
   int grid_placement = get_grid_placement(grid, current);
   print_stats(win, score, lines_cleared / 10 + 1);
 
@@ -142,7 +155,7 @@ void game(enum State *game_state, Vec *highscores) {
       break;
     case ' ': {
       run = update_board(game_win, next_win, win, &grid, &current, queue,
-                         &score, &did_hold, &lines_cleared);
+                         &score, &did_hold, &lines_cleared, &combo_count);
 
       now = clock();
       break;
@@ -181,7 +194,7 @@ void game(enum State *game_state, Vec *highscores) {
     if (is_on_ground) {
       if (interval >= 0.5 * CLOCKS_PER_SEC) {
         run = update_board(game_win, next_win, win, &grid, &current, queue,
-                           &score, &did_hold, &lines_cleared);
+                           &score, &did_hold, &lines_cleared, &combo_count);
 
         now = then;
       }
