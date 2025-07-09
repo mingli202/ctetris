@@ -1,7 +1,6 @@
 #ifndef LIB_H
 #define LIB_H
 
-#include <cJSON.h>
 #include <math.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -49,34 +48,6 @@ void quit() {
   curs_set(1);
   endwin(); // ends curses
   exit(0);
-}
-
-void get_highscore(int *highscore) {
-  FILE *file = fopen("data.json", "r");
-
-  if (file == NULL)
-    return;
-
-  fseek(file, 0, SEEK_END);
-  int length = ftell(file);
-  fseek(file, 0, SEEK_SET);
-
-  char *buff = malloc(length);
-
-  if (!buff)
-    return;
-
-  size_t res = fread(buff, 1, length, file);
-  cJSON *json = cJSON_Parse(buff);
-  cJSON *highscore_value = cJSON_GetObjectItemCaseSensitive(json, "highscore");
-
-  if (cJSON_IsNumber(highscore_value)) {
-    *highscore = highscore_value->valueint;
-  }
-
-  cJSON_Delete(json);
-
-  fclose(file);
 }
 
 #endif
