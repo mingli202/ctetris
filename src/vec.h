@@ -61,7 +61,9 @@ void quick_sort(int arr[], int left, int right) {
     }
   }
 
-  arr[i] = pivot;
+  int temp = arr[i];
+  arr[i] = arr[right];
+  arr[right] = temp;
 
   quick_sort(arr, left, i - 1);
   quick_sort(arr, i + 1, right);
