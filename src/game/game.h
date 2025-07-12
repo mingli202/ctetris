@@ -150,12 +150,20 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
 
   int tries[] = {0, -1, 1};
 
+  int grid_placement;
+
   for (int i = 0; i < 3; i++) {
     if (!is_block_overlap(grid, standby, offset_y, offset_x + tries[i])) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->shape = standby;
-      *now = clock();
-      return get_grid_placement(grid, *current);
+
+      grid_placement = get_grid_placement(grid, *current);
+
+      if (current->position.y == grid_placement + 1) {
+        *now = clock();
+      }
+
+      return grid_placement;
     }
   }
 
@@ -166,22 +174,34 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       current->position.x = (offset_x + tries[i]) * 2 + 1;
       current->position.y = offset_y + 1;
       current->shape = standby;
-      *now = clock();
-      return get_grid_placement(grid, *current);
+
+      grid_placement = get_grid_placement(grid, *current);
+
+      if (current->position.y == grid_placement + 1) {
+        *now = clock();
+      }
+
+      return grid_placement;
     }
   }
 
   offset_y--;
 
-  int grid_placement = get_grid_placement(grid, *current);
+  grid_placement = get_grid_placement(grid, *current);
 
   if (current->position.y == grid_placement + 1) {
     offset_y--;
     if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
       current->position.y = offset_y + 1;
       current->shape = standby;
+
       grid_placement = get_grid_placement(grid, *current);
-      *now = clock();
+
+      if (current->position.y == grid_placement + 1) {
+        *now = clock();
+      }
+
+      return grid_placement;
     }
   }
 
@@ -224,12 +244,20 @@ int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
     if (can_move_right(grid, *current)) {
       current->position.x += 2;
       grid_placement = get_grid_placement(grid, *current);
+
+      if (current->position.y == grid_placement + 1) {
+        *now = clock();
+      }
     }
     break;
   case MOVE_LEFT:
     if (can_move_left(grid, *current)) {
       current->position.x -= 2;
       grid_placement = get_grid_placement(grid, *current);
+
+      if (current->position.y == grid_placement + 1) {
+        *now = clock();
+      }
     }
     break;
   case MOVE_DOWN:
