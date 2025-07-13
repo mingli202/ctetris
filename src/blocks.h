@@ -7,7 +7,15 @@
 #include <stdlib.h>
 #include <time.h>
 
-enum BlockType { I, J, L, O, S, T, Z };
+enum BlockType {
+  I = 1,
+  J = 2,
+  L = 3,
+  O = 4,
+  S = 5,
+  T = 6,
+  Z = 7,
+};
 
 typedef struct Point {
   int x;
@@ -141,17 +149,8 @@ void block_wclear(WINDOW *win, Block block) {
   }
 }
 
-Block block_new(int *last_color) {
-  int type = arc4random_uniform(7);
-  int color = arc4random_uniform(6) + 1;
-
-  if (last_color != NULL) {
-    while (color == *last_color) {
-      color = arc4random_uniform(6) + 1;
-    }
-
-    *last_color = color;
-  }
+Block block_new() {
+  int type = arc4random_uniform(7) + 1;
 
   int x = 3;
 
@@ -161,7 +160,7 @@ Block block_new(int *last_color) {
     x = 4;
   }
 
-  Block b = {.color = color,
+  Block b = {.color = type,
              .position = {.x = x, .y = 1},
              .shape = block_get_shape(type),
              .type = type};

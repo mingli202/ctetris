@@ -131,7 +131,7 @@ void game(enum State *game_state, Vec *highscores) {
   create_initial_queue(queue);
 
   int last_color = queue[0].color;
-  Block current = block_new(&last_color);
+  Block current = block_new();
   current.position.y = 1;
   block_center(dim_game, &current);
 
@@ -144,7 +144,7 @@ void game(enum State *game_state, Vec *highscores) {
   int grid_placement = get_grid_placement(grid, current);
   print_stats(win, score, lines_cleared / 10 + 1);
 
-  Block hold = block_new(NULL);
+  Block hold = block_new();
   hold.type = -1;
   bool did_hold = false;
 

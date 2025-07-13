@@ -34,12 +34,13 @@ void init() {
   init_pair(9, COLOR_BLACK, COLOR_WHITE);
 
   init_pair(0, 0, 0);
-  init_pair(1, 1, 1); // red
-  init_pair(2, 2, 2); // green
-  init_pair(3, 3, 3); // yellow
-  init_pair(4, 4, 4); // blue
-  init_pair(5, 5, 5); // magenta
-  init_pair(6, 6, 6); // cyan
+  init_pair(7, COLOR_RED, COLOR_RED);         // red
+  init_pair(3, COLOR_RED, COLOR_RED);         // red
+  init_pair(5, COLOR_GREEN, COLOR_GREEN);     // green
+  init_pair(4, COLOR_YELLOW, COLOR_YELLOW);   // yellow
+  init_pair(2, COLOR_BLUE, COLOR_BLUE);       // blue
+  init_pair(6, COLOR_MAGENTA, COLOR_MAGENTA); // magenta
+  init_pair(1, COLOR_CYAN, COLOR_CYAN);       // cyan
 }
 
 void quit() {

@@ -15,7 +15,7 @@ void create_initial_queue(Block *queue) {
   int last_color = -1;
 
   for (int i = 0; i < 3; i++) {
-    queue[i] = block_new(&last_color);
+    queue[i] = block_new();
     queue[i].position.y = 3 * i + 1;
   }
 }
@@ -74,7 +74,7 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
 
   int last_color = queue[1].color;
 
-  queue[2] = block_new(&last_color);
+  queue[2] = block_new();
   queue[2].position.y = 2 * 3 + 1;
 
   update_next_window(next_win, queue);
@@ -303,7 +303,7 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   ghost_wclear(game_win, *current, grid_placement);
 
   if (hold->type == -1) {
-    *hold = block_new(NULL);
+    *hold = block_new();
     hold->color = current->color;
     hold->shape = current->shape;
     hold->type = current->type;
