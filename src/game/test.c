@@ -146,9 +146,7 @@ void test_place_block_above_1(Matrix *grid) {
                .position = {.x = 1 * 2 + 1, .y = 1},
                .shape = block_get_shape(O)};
 
-  matrix_print(*grid);
   int placement = get_grid_placement(*grid, b_O);
-  printf("%i\n", placement);
   assert(placement == 17);
 
   place_block(grid, b_O, placement);
