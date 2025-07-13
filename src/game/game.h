@@ -125,14 +125,7 @@ int update_grid(Matrix *grid) {
   int back = 19;
 
   for (; front >= 0; front--) {
-    bool is_full = true;
-
-    for (int i = 0; i < grid->n; i++) {
-      if (matrix_get(*grid, front, i) == 0) {
-        is_full = false;
-        break;
-      }
-    }
+    bool is_full = is_row_full(*grid, front);
 
     if (!is_full) {
       for (int i = 0; i < grid->n; i++) {
@@ -141,7 +134,14 @@ int update_grid(Matrix *grid) {
       back--;
     }
   }
-  return back - front;
+
+  int score = back - front;
+
+  for (; back >= 0; back--) {
+    clear_row(grid, back);
+  }
+
+  return score;
 }
 
 int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {

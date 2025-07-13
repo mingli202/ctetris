@@ -125,4 +125,22 @@ Matrix matrix_rotate_right(Matrix A) {
   return R;
 }
 
+bool is_row_full(Matrix grid, int row) {
+  for (int i = 0; i < grid.n; i++) {
+    if (matrix_get(grid, row, i) == 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool clear_row(Matrix *grid, int row) {
+  for (int i = 0; i < grid->n; i++) {
+    matrix_set(grid, row, i, 0);
+  }
+
+  return true;
+}
+
 #endif
