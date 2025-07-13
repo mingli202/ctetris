@@ -20,7 +20,7 @@ Matrix matrix_new(int m, int n) {
 }
 
 Matrix matrix_from(int m, int n, int arr[]) {
-  Matrix R = {.m = m, .n = n, .M = malloc(m * n * sizeof(int))};
+  Matrix R = {.m = m, .n = n, .M = (int *)malloc(m * n * sizeof(int))};
 
   assert(R.M != NULL);
 
