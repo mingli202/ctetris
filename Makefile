@@ -6,6 +6,10 @@ compile:
 run:
 	TERM=screen-256color ./bin/tetris
 
+release:
+	mkdir -p bin && clang -std=c2x -o bin/tetris `pkg-config --libs --cflags ncurses` src/main.c -O3
+	strip bin/tetris
+
 FILE?=src/test/test.c
 
 test:
