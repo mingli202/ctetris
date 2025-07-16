@@ -51,4 +51,36 @@ void quit() {
   exit(0);
 }
 
+void print_help() {
+  printf("Tetris in the terminal\n\n");
+  printf("Usage:  ctetris [(-l | -level) <level>]\n");
+  printf("        ctetris [(-i | --initial-level) <level>]\n");
+  printf("        ctetris [-h | --help]\n");
+  printf("\n");
+  printf("Options:\n");
+  printf("  -l, --level <level>          Set a constant level to play\n");
+  printf("  -i, --initial-level <level>  Set the initial level to play\n");
+  printf("  -h, --help                   Show this help message\n");
+}
+
+void parse_args(int argc, char **argv, int *level, bool *is_constant_level) {
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+      print_help();
+      exit(0);
+    } else if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--level") == 0) {
+      if (i + 1 < argc) {
+        *is_constant_level = true;
+        *level = atoi(argv[i + 1]) <= 0 ? 1 : atoi(argv[i + 1]);
+      }
+    } else if (strcmp(argv[i], "-i") == 0 ||
+               strcmp(argv[i], "--initial-level") == 0) {
+      if (i + 1 < argc) {
+        *is_constant_level = false;
+        *level = atoi(argv[i + 1]) <= 0 ? 1 : atoi(argv[i + 1]);
+      }
+    }
+  }
+}
+
 #endif
