@@ -3,10 +3,9 @@
 
 int main(int argc, char **argv) {
   int initial_level = 1;
+  bool is_constant_level = false;
 
-  if (argc == 2) {
-    initial_level = atoi(argv[1]);
-  }
+  parse_args(argc, argv, &initial_level, &is_constant_level);
 
   init();
 
@@ -20,7 +19,7 @@ int main(int argc, char **argv) {
       menu(&game_state, &highscores);
       break;
     case GAME:
-      game(&game_state, &highscores, initial_level);
+      game(&game_state, &highscores, initial_level, is_constant_level);
       break;
     }
   }

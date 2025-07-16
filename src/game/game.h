@@ -332,10 +332,10 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   return grid_placement;
 }
 
-double calculate_speed(int level, int initial_level) {
+double calculate_speed(int level, int initial_level, bool is_constant_level) {
   level--;
 
-  if (initial_level > 0 && level < initial_level) {
+  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
     level = initial_level;
   }
 
