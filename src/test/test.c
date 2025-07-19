@@ -16,7 +16,7 @@ int main(void) {
   m = matrix_rotate_left(m);
   matrix_print(m);
 
-  Vec v = vec_new(10);
+  Vec v = vec_with_capacity(10);
   // push in random order
   for (int i = 0; i < 10; i++) {
     int random = rand() % 10;
@@ -36,7 +36,7 @@ int main(void) {
 
   assert_res(compare_vec(v2, vec_from(ar2, 5), "vec_reverse"));
 
-  v = vec_new(10);
+  v = vec_with_capacity(10);
   vec_push(&v, 300);
   vec_push(&v, 100);
   vec_push(&v, 200);

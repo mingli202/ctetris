@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 
   enum State game_state = MENU;
 
-  Vec highscores = vec_new(10);
+  Vec highscores = vec_with_capacity(10);
 
   while (true) {
     switch (game_state) {
