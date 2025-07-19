@@ -1,5 +1,6 @@
 #include "game/game.c"
 #include "menu.c"
+#include "vec.h"
 
 int main(int argc, char **argv) {
   int initial_level = 1;

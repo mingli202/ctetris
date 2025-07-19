@@ -1,11 +1,8 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include "lib.h"
 #include "matrix/matrix.h"
-#include "settings.h"
-#include <ncurses.h>
-#include <stdlib.h>
-#include <time.h>
 
 enum BlockType {
   I = 1,
@@ -15,6 +12,7 @@ enum BlockType {
   S = 5,
   T = 6,
   Z = 7,
+  NONE = -1,
 };
 
 typedef struct Point {

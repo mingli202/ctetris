@@ -1,4 +1,8 @@
 #include "lib.h"
+#include <ncurses.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 void init() {
   initscr(); // init curses
