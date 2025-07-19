@@ -1,20 +1,14 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <ncurses.h>
+#define W_GAME_HEIGHT 22
+#define W_GAME_WIDTH 22
+#define BOX_SIZE 2
 
-typedef struct Dimensions {
-  int height;
-  int width;
-  int x;
-  int y;
-  int box;
-} Dimensions;
+#define W_HOLD_HEIGHT 4
+#define W_HOLD_WIDTH 12
 
-Dimensions dim_game = {.height = 22, .width = 22, .box = 2};
-
-Dimensions dim_hold = {.height = 4, .width = 12, .box = 2};
-
-Dimensions dim_next = {.height = 10, .width = 12, .box = 2};
+#define W_NEXT_HEIGHT 10
+#define W_NEXT_WIDTH 12
 
 #endif
