@@ -14,7 +14,7 @@ Block block_new() {
   }
 
   Block b = {.color = type,
-             .position = {.x = x, .y = 1},
+             .pos = {.x = x, .y = 1},
              .shape = block_get_shape(type),
              .type = type};
 
@@ -60,14 +60,16 @@ Matrix block_get_shape(enum BlockType type) {
     R = matrix_from(3, 3, block);
     break;
   }
+  default: {
+  }
   }
 
   return R;
 }
 
 void block_wprint(WINDOW *win, Block block) {
-  int x = block.position.x;
-  int y = block.position.y;
+  int x = block.pos.x;
+  int y = block.pos.y;
 
   wattron(win, COLOR_PAIR(block.color));
 
@@ -83,8 +85,8 @@ void block_wprint(WINDOW *win, Block block) {
 }
 
 void block_wclear(WINDOW *win, Block block) {
-  int x = block.position.x;
-  int y = block.position.y;
+  int x = block.pos.x;
+  int y = block.pos.y;
 
   wattron(win, A_NORMAL);
 
@@ -146,11 +148,11 @@ Matrix get_shape(enum BlockType type) {
 }
 
 void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
-  block.position.y = grid_placement + 1;
+  block.pos.y = grid_placement + 1;
   block.color = 8;
 
-  int x = block.position.x;
-  int y = block.position.y;
+  int x = block.pos.x;
+  int y = block.pos.y;
 
   wattron(game_win, COLOR_PAIR(block.color));
 
@@ -166,7 +168,7 @@ void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
 }
 
 void ghost_wclear(WINDOW *game_win, Block block, int grid_placement) {
-  block.position.y = grid_placement + 1;
+  block.pos.y = grid_placement + 1;
   block.color = 9;
   block_wclear(game_win, block);
 }

@@ -17,8 +17,8 @@ bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
 }
 
 int get_grid_placement(Matrix grid, Block current) {
-  int offset_y = current.position.y;
-  int offset_x = (current.position.x - 1) / 2;
+  int offset_y = current.pos.y;
+  int offset_x = (current.pos.x - 1) / 2;
 
   while (!is_block_overlap(grid, current.shape, offset_y, offset_x)) {
     offset_y++;

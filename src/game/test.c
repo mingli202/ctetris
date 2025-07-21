@@ -9,7 +9,7 @@ void test_placement(Matrix grid) {
   for (int i = 0; i < 7; i++) {
     Block b = {.color = 1,
                .type = shapes[i],
-               .position = {.x = 1, .y = 1},
+               .pos = {.x = 1, .y = 1},
                .shape = block_get_shape(shapes[i])};
     int placement = get_grid_placement(grid, b);
 
@@ -32,7 +32,7 @@ void test_place_block_1(Matrix *grid) {
   Block b_I = {
       .color = 1,
       .type = I,
-      .position = {.x = 1, .y = 1},
+      .pos = {.x = 1, .y = 1},
       .shape = block_get_shape(I),
   };
   int res = get_grid_placement(*grid, b_I);
@@ -63,7 +63,7 @@ void test_place_block_2() {
 
   Block b_T = {.color = 1,
                .type = T,
-               .position = {.x = 3, .y = 1},
+               .pos = {.x = 3, .y = 1},
                .shape = block_get_shape(T)};
 
   int res = get_grid_placement(grid, b_T);
@@ -102,7 +102,7 @@ void test_place_block_3(Matrix *grid) {
   Block b_J = {
       .color = 2,
       .type = J,
-      .position = {.x = 11, .y = 3},
+      .pos = {.x = 11, .y = 3},
       .shape = block_get_shape(J),
   };
   int placement = get_grid_placement(*grid, b_J);
@@ -143,7 +143,7 @@ void test_place_block_3(Matrix *grid) {
 void test_place_block_above_1(Matrix *grid) {
   Block b_O = {.color = 3,
                .type = O,
-               .position = {.x = 1 * 2 + 1, .y = 1},
+               .pos = {.x = 1 * 2 + 1, .y = 1},
                .shape = block_get_shape(O)};
 
   int placement = get_grid_placement(*grid, b_O);
@@ -172,7 +172,7 @@ void test_place_block_above_2(Matrix *grid) {
   Block b_Z = {
       .color = 4,
       .type = Z,
-      .position = {.x = 7 * 2 + 1, .y = 1},
+      .pos = {.x = 7 * 2 + 1, .y = 1},
       .shape = block_get_shape(Z),
   };
 
@@ -213,7 +213,7 @@ void test_rotate_block() {
 
   Block b_T = {.color = 1,
                .type = T,
-               .position = {.x = 1, .y = 1},
+               .pos = {.x = 1, .y = 1},
                .shape = block_get_shape(T)};
 
   Matrix left = matrix_rotate_left(b_T.shape);
@@ -245,7 +245,7 @@ void test_rotate_block() {
 void test_place_block_above_3(Matrix *grid) {
   Block b_T = {.color = 5,
                .type = T,
-               .position = {.x = 3 * 2 + 1, .y = 1},
+               .pos = {.x = 3 * 2 + 1, .y = 1},
                .shape = block_get_shape(T)};
 
   b_T.shape = matrix_rotate_left(b_T.shape);
@@ -625,23 +625,23 @@ void test_can_move_left() {
   Block block = {
       .color = 1,
       .type = T,
-      .position = {.x = 6 * 2 + 1, .y = 12},
+      .pos = {.x = 6 * 2 + 1, .y = 12},
       .shape = matrix_from(2, 3, b),
   };
 
   assert_bool(can_move_left(grid, block) == true, "T block move left 1");
 
-  block.position.y++;
+  block.pos.y++;
 
   assert_bool(can_move_left(grid, block) == false, "T block move left 2");
 
-  block.position.y++;
+  block.pos.y++;
   assert_bool(can_move_left(grid, block) == false, "T block move left 3");
 
-  block.position.y++;
+  block.pos.y++;
   assert_bool(can_move_left(grid, block) == true, "T block move left 4");
 
-  block.position.x -= 2;
+  block.pos.x -= 2;
   assert_bool(can_move_left(grid, block) == false, "T block move left 5");
 }
 void test_can_move_right() {
@@ -663,24 +663,24 @@ void test_can_move_right() {
   Block block = {
       .color = 1,
       .type = T,
-      .position = {.x = 3 * 2 + 1, .y = 12},
+      .pos = {.x = 3 * 2 + 1, .y = 12},
       .shape = matrix_from(2, 3, b),
   };
 
   assert_bool(can_move_right(grid, block) == true, "T block move right 1");
 
-  block.position.y++;
-  block.position.x -= 2;
+  block.pos.y++;
+  block.pos.x -= 2;
 
   assert_bool(can_move_right(grid, block) == false, "T block move right 2");
 
-  block.position.x -= 2;
+  block.pos.x -= 2;
   assert_bool(can_move_right(grid, block) == true, "T block move right 3");
 
-  block.position.y++;
+  block.pos.y++;
   assert_bool(can_move_right(grid, block) == false, "T block move right 4");
 
-  block.position.y++;
+  block.pos.y++;
   assert_bool(can_move_right(grid, block) == false, "T block move right 5");
 }
 

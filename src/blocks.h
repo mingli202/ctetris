@@ -22,7 +22,7 @@ typedef struct Point {
 
 typedef struct Block {
   int color;
-  struct Point position;
+  struct Point pos;
   Matrix shape;
   enum BlockType type;
 } Block;
