@@ -3,6 +3,7 @@
 
 #include "../blocks.h"
 #include "../vec.h"
+#include "state.h"
 #include <ncurses.h>
 #include <time.h>
 
@@ -16,7 +17,6 @@ int handle_rotate_right(Matrix grid, Block *current, clock_t *now);
 
 bool can_move_left(Matrix grid, Block current);
 bool can_move_right(Matrix grid, Block current);
-int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
-             clock_t *now);
+int dispatch(State *state, enum Action action, clock_t *now);
 
 #endif

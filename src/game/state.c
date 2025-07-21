@@ -13,7 +13,7 @@ State state_new() {
       .score = 0,
       .level = 1,
       .lines = 0,
-      .combo = -1,
+      .combo_count = -1,
       .did_hold = false,
       .window = newwin(0, 0, 0, 0),
       .game_window = create_window_with_box(dim_game.height, dim_game.width,

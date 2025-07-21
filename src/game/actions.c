@@ -102,8 +102,7 @@ bool can_move_right(Matrix grid, Block current) {
   return !is_block_overlap(grid, current.shape, offset_y, offset_x);
 }
 
-int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
-             clock_t *now) {
+int dispatch(State *state, enum Action action, clock_t *now) {
   block_wclear(game_win, *current);
 
   int grid_placement = get_grid_placement(grid, *current);
