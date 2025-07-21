@@ -177,6 +177,16 @@ void init_windows_dimensions() {
   dim_next.y = dim_game.y;
   dim_next.x = dim_game.x + dim_game.width;
 }
+
+void print_stats(State state) {
+  WINDOW *win = state.window;
+
+  mvwprintw(win, LINES - 3, (COLS - dim_game.width) / 2 - dim_hold.width,
+            "Score: %d", state.score);
+  mvwprintw(win, LINES - 2, (COLS - dim_game.width) / 2 - dim_hold.width,
+            "Level: %d", state.level);
+  mvwprintw(win, LINES - 1, (COLS - dim_game.width) / 2 - dim_hold.width,
+            "Lines: %d", state.lines_cleared);
   wrefresh(win);
 }
 

@@ -5,6 +5,7 @@
 #include "../lib.h"
 #include "../matrix/matrix.h"
 #include "../vec.h"
+#include "state.h"
 
 #include <assert.h>
 #include <ncurses.h>
@@ -12,6 +13,7 @@
 void game(enum Screen *game_state, Vec *highscores, int initial_level,
           bool is_constant_level);
 void print_instructions(WINDOW *win);
+void print_stats(State state);
 void init_windows_dimensions();
 
 void update_next_window(WINDOW *next_win, Block queue[]) {
