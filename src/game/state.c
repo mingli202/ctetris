@@ -1,4 +1,6 @@
 #include "state.h"
+#include "game.h"
+#include "util.h"
 #include <string.h>
 
 State state_new() {
@@ -57,6 +59,42 @@ int state_update_grid(State *state) {
 
   return score;
 };
+
+void state_swap_hold(State *state) {
+  int grid_placement = get_grid_placement(state->grid, state->current);
+  block_wclear(state->game_window, state->current);
+  ghost_wclear(state->game_window, state->current, grid_placement);
+
+  if (state->hold.type == -1) {
+    state->hold = block_new();
+    state->hold.color = state->current.color;
+    state->hold.shape = state->current.shape;
+    state->hold.type = state->current.type;
+    state->hold.pos.y = 2;
+
+    update_current(state->next_window, state->game_window, state->queue,
+                   &state->current);
+  } else {
+    block_wclear(state->hold_window, state->hold);
+    Block tmp = state->hold;
+    state->hold = state->current;
+    state->current = tmp;
+  }
+
+  if (state->current.type == I) {
+    state->current.pos.y = 0;
+  }
+
+  grid_placement = get_grid_placement(state->grid, state->current);
+
+  ghost_wprint(state->game_window, state->current, grid_placement);
+  block_wprint(state->game_window, state->current);
+
+  update_hold_window(state->hold_window, &state->hold);
+  wrefresh(state->game_window);
+
+  state->grid_placement = grid_placement;
+}
 
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]) {

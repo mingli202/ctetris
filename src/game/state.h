@@ -14,6 +14,7 @@ typedef struct State {
   int lines;
   int combo;
   bool did_hold;
+  int grid_placement;
   WINDOW *window;
   WINDOW *game_window;
   WINDOW *hold_window;
@@ -23,6 +24,7 @@ typedef struct State {
 State state_new();
 void state_init_queue(State *state);
 int state_update_grid(State *state);
+void state_swap_hold();
 
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]);
