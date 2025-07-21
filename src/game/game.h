@@ -77,8 +77,8 @@ void update_hold_window(WINDOW *hold_win, Block *hold) {
   } else if (hold->type == O) {
     x = 4;
   }
-  hold->position.y = 1;
-  hold->position.x = x;
+  hold->pos.y = 1;
+  hold->pos.x = x;
   hold->shape = block_get_shape(hold->type);
   block_wprint(hold_win, *hold);
   wrefresh(hold_win);
@@ -95,7 +95,7 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
     hold->color = current->color;
     hold->shape = current->shape;
     hold->type = current->type;
-    hold->position.y = 2;
+    hold->pos.y = 2;
 
     update_current(next_win, game_win, queue, current);
   } else {
@@ -106,7 +106,7 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   }
   block_center(dim_game, current);
   if (current->type == I) {
-    current->position.y = 0;
+    current->pos.y = 0;
   }
 
   grid_placement = get_grid_placement(grid, *current);
