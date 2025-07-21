@@ -1,55 +1,23 @@
 #include "game.h"
 #include "../vec.h"
+#include "state.h"
 
 #include <string.h>
 
 void game(enum Screen *game_state, Vec *highscores, int initial_level,
           bool is_constant_level) {
-  WINDOW *win = newwin(0, 0, 0, 0);
-  wclear(win);
-  wrefresh(win);
+  init_windows_dimensions();
 
-  print_instructions(win);
+  State state = state_new();
+  wclear(state.window);
+  wrefresh(state.window);
 
-  dim_game.y = (LINES - dim_game.height) / 2;
-  dim_game.x = (COLS - dim_game.width) / 2;
-
-  dim_hold.y = dim_game.y;
-  dim_hold.x = dim_game.x - dim_hold.width;
-
-  dim_next.y = dim_game.y;
-  dim_next.x = dim_game.x + dim_game.width;
-
-  WINDOW *game_win = create_window_box(dim_game.height, dim_game.width,
-                                       dim_game.y, dim_game.x, "Play");
-  WINDOW *hold_win = create_window_box(dim_hold.height, dim_hold.width,
-                                       dim_hold.y, dim_hold.x, "Hold");
-
-  WINDOW *next_win = create_window_box(dim_next.height, dim_next.width,
-                                       dim_next.y, dim_next.x, "Next");
-
-  Matrix grid = matrix_new(20, 10);
-
-  Block queue[3];
-  create_initial_queue(queue);
-
-  int last_color = queue[0].color;
-  Block current = block_new();
-  current.position.y = 1;
-  block_center(dim_game, &current);
+  print_instructions(state.window);
 
   update_next_window(next_win, queue);
 
-  int tick = 3;
-  int score = 0;
-  int lines_cleared = 0;
-  int combo_count = -1;
   int grid_placement = get_grid_placement(grid, current);
-  print_stats(win, score, lines_cleared, initial_level);
-
-  Block hold = block_new();
-  hold.type = -1;
-  bool did_hold = false;
+  print_stats(state);
 
   ghost_wprint(game_win, current, grid_placement);
 
@@ -160,13 +128,6 @@ void print_instructions(WINDOW *win) {
   wrefresh(win);
 }
 
-void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
-  mvwprintw(win, LINES - 3, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Score: %d", score);
-  mvwprintw(win, LINES - 2, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Level: %d", level);
-  mvwprintw(win, LINES - 1, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Lines: %d", lines_cleared);
 void init_windows_dimensions() {
   dim_game.y = (LINES - dim_game.height) / 2;
   dim_game.x = (COLS - dim_game.width) / 2;
@@ -245,8 +206,8 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
 
   *did_hold = false;
 
-  int offset_y = current->position.y - 1;
-  int offset_x = (current->position.x - 1) / 2;
+  int offset_y = current->pos.y - 1;
+  int offset_x = (current->pos.x - 1) / 2;
 
   return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }
