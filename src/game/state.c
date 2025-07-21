@@ -6,8 +6,23 @@ State state_new() {
   State state = {
       .queue = queue,
       .current = block_new(),
+      .hold = {.type = NONE},
+      .grid = matrix_new(20, 10),
+      .score = 0,
+      .level = 1,
+      .lines = 0,
+      .combo = -1,
+      .did_hold = false,
       .window = newwin(0, 0, 0, 0),
+      .game_window = create_window_with_box(dim_game.height, dim_game.width,
+                                            dim_game.y, dim_game.x, "Play"),
+      .hold_window = create_window_with_box(dim_hold.height, dim_hold.width,
+                                            dim_hold.y, dim_hold.x, "Hold"),
+      .next_window = create_window_with_box(dim_next.height, dim_next.width,
+                                            dim_next.y, dim_next.x, "Next"),
   };
+
+  state_init_queue(&state);
 
   return state;
 }
@@ -15,7 +30,7 @@ State state_new() {
 void state_init_queue(State *state) {
   for (int i = 0; i < 3; i++) {
     state->queue[i] = block_new();
-    state->queue[i].position.y = 3 * i + 1;
+    state->queue[i].pos.y = 3 * i + 1;
   }
 }
 
@@ -38,23 +53,23 @@ void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
   }
 
   *current = queue[0];
-  block_center(W_GAME_WIDTH, current);
-  current->position.y = 1;
+  block_center(dim_game.width, current);
+  current->pos.y = 1;
 
   if (current->type == I) {
-    current->position.y = 0;
+    current->pos.y = 0;
   }
 
   queue[0] = queue[1];
-  queue[0].position.y -= 3;
+  queue[0].pos.y -= 3;
 
   queue[1] = queue[2];
-  queue[1].position.y -= 3;
+  queue[1].pos.y -= 3;
 
   int last_color = queue[1].color;
 
   queue[2] = block_new();
-  queue[2].position.y = 2 * 3 + 1;
+  queue[2].pos.y = 2 * 3 + 1;
 
   update_next_window(next_win, queue);
 }
