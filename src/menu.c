@@ -69,7 +69,7 @@ void print_menu(WINDOW *win, Vec highscores) {
   wrefresh(win);
 }
 
-void menu(enum State *game_state, Vec *highscores) {
+void menu(enum Screen *game_state, Vec *highscores) {
   WINDOW *win = newwin(0, 0, 0, 0);
 
   print_menu(win, *highscores);

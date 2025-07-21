@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 
   init();
 
-  enum State game_state = MENU;
+  enum Screen game_state = MENU;
 
   Vec highscores = vec_with_capacity(10);
 

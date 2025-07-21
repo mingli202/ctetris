@@ -11,7 +11,7 @@
 #define W_NEXT_HEIGHT 10
 #define W_NEXT_WIDTH 12
 
-enum State { MENU, GAME };
+enum Screen { MENU, GAME };
 
 void init();
 void quit();
