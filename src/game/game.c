@@ -3,114 +3,7 @@
 
 #include <string.h>
 
-void print_instructions(WINDOW *win) {
-  char *instructions_left[] = {
-      "LEFT - move piece left",
-      "RIGHT - move piece right",
-      "DOWN - soft drop",
-      "SPACE - hard drop",
-  };
-
-  for (int i = 0; i < 4; i++) {
-    mvwprintw(win, i + 1, (COLS - 22) / 2 - 12, instructions_left[i]);
-  }
-
-  char *instructions_right[] = {
-      "quit - q",
-      "swap hold - c",
-      "rotate left - z",
-      "rotate right - UP",
-  };
-
-  for (int i = 0; i < 4; i++) {
-    int len = strlen(instructions_right[i]);
-    mvwprintw(win, i + 1, COLS / 2 + W_GAME_WIDTH / 2 + W_HOLD_WIDTH - len,
-              instructions_right[i]);
-  }
-  wrefresh(win);
-}
-
-void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
-  mvwprintw(win, LINES - 3, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Score: %d", score);
-  mvwprintw(win, LINES - 2, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Level: %d", level);
-  mvwprintw(win, LINES - 1, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
-            "Lines: %d", lines_cleared);
-  wrefresh(win);
-}
-
-WINDOW *create_window_box(int height, int width, int y, int x, char word[]) {
-  WINDOW *win = newwin(height, width, y, x);
-  box(win, 0, 0);
-  mvwprintw(win, 0, (width - strlen(word)) / 2, word);
-  wrefresh(win);
-
-  return win;
-}
-
-void print_game_win(WINDOW *game_win, Matrix grid) {
-  for (int i = 0; i < grid.m; i++) {
-    for (int k = 0; k < grid.n; k++) {
-      wattrset(game_win, COLOR_PAIR(matrix_get(grid, i, k)));
-      mvwprintw(game_win, i + 1, k * 2 + 1, "  ");
-    }
-  }
-  wattrset(game_win, A_NORMAL);
-  wrefresh(game_win);
-}
-
-bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
-                  Block *current, Block *queue, int *score, bool *did_hold,
-                  int *lines_cleared, int *combo_count, int initial_level,
-                  bool is_constant_level) {
-  int placement = get_grid_placement(*grid, *current);
-  place_block(grid, *current, placement);
-
-  // scoring
-  int line_cleared = update_grid(grid);
-  *lines_cleared += line_cleared;
-
-  int level = *lines_cleared / 10 + 1;
-  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
-    level = initial_level;
-  }
-
-  if (line_cleared > 0 && line_cleared <= 4) {
-    int score_mapping[] = {100, 300, 500, 800};
-    int s = score_mapping[line_cleared - 1] * (level);
-
-    if (*combo_count > 0) {
-      s += *combo_count * 50 * level;
-    }
-
-    *score += s;
-
-    *combo_count += 1;
-  } else {
-    *combo_count = -1;
-  }
-
-  print_stats(win, *score, *lines_cleared, level);
-
-  block_wclear(game_win, *current);
-  print_game_win(game_win, *grid);
-  update_current(next_win, game_win, queue, current);
-
-  placement = get_grid_placement(*grid, *current);
-  ghost_wprint(game_win, *current, placement);
-  block_wprint(game_win, *current);
-  wrefresh(game_win);
-
-  *did_hold = false;
-
-  int offset_y = current->position.y - 1;
-  int offset_x = (current->position.x - 1) / 2;
-
-  return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
-}
-
-void game(enum State *game_state, Vec *highscores, int initial_level,
+void game(enum Screen *game_state, Vec *highscores, int initial_level,
           bool is_constant_level) {
   WINDOW *win = newwin(0, 0, 0, 0);
   wclear(win);
@@ -238,4 +131,111 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
   delwin(game_win);
   delwin(hold_win);
   delwin(next_win);
+}
+
+void print_instructions(WINDOW *win) {
+  char *instructions_left[] = {
+      "LEFT - move piece left",
+      "RIGHT - move piece right",
+      "DOWN - soft drop",
+      "SPACE - hard drop",
+  };
+
+  for (int i = 0; i < 4; i++) {
+    mvwprintw(win, i + 1, (COLS - 22) / 2 - 12, instructions_left[i]);
+  }
+
+  char *instructions_right[] = {
+      "quit - q",
+      "swap hold - c",
+      "rotate left - z",
+      "rotate right - UP",
+  };
+
+  for (int i = 0; i < 4; i++) {
+    int len = strlen(instructions_right[i]);
+    mvwprintw(win, i + 1, COLS / 2 + W_GAME_WIDTH / 2 + W_HOLD_WIDTH - len,
+              instructions_right[i]);
+  }
+  wrefresh(win);
+}
+
+void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
+  mvwprintw(win, LINES - 3, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
+            "Score: %d", score);
+  mvwprintw(win, LINES - 2, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
+            "Level: %d", level);
+  mvwprintw(win, LINES - 1, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
+            "Lines: %d", lines_cleared);
+  wrefresh(win);
+}
+
+WINDOW *create_window_box(int height, int width, int y, int x, char word[]) {
+  WINDOW *win = newwin(height, width, y, x);
+  box(win, 0, 0);
+  mvwprintw(win, 0, (width - strlen(word)) / 2, word);
+  wrefresh(win);
+
+  return win;
+}
+
+void print_game_win(WINDOW *game_win, Matrix grid) {
+  for (int i = 0; i < grid.m; i++) {
+    for (int k = 0; k < grid.n; k++) {
+      wattrset(game_win, COLOR_PAIR(matrix_get(grid, i, k)));
+      mvwprintw(game_win, i + 1, k * 2 + 1, "  ");
+    }
+  }
+  wattrset(game_win, A_NORMAL);
+  wrefresh(game_win);
+}
+
+bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
+                  Block *current, Block *queue, int *score, bool *did_hold,
+                  int *lines_cleared, int *combo_count, int initial_level,
+                  bool is_constant_level) {
+  int placement = get_grid_placement(*grid, *current);
+  place_block(grid, *current, placement);
+
+  // scoring
+  int line_cleared = update_grid(grid);
+  *lines_cleared += line_cleared;
+
+  int level = *lines_cleared / 10 + 1;
+  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
+    level = initial_level;
+  }
+
+  if (line_cleared > 0 && line_cleared <= 4) {
+    int score_mapping[] = {100, 300, 500, 800};
+    int s = score_mapping[line_cleared - 1] * (level);
+
+    if (*combo_count > 0) {
+      s += *combo_count * 50 * level;
+    }
+
+    *score += s;
+
+    *combo_count += 1;
+  } else {
+    *combo_count = -1;
+  }
+
+  print_stats(win, *score, *lines_cleared, level);
+
+  block_wclear(game_win, *current);
+  print_game_win(game_win, *grid);
+  update_current(next_win, game_win, queue, current);
+
+  placement = get_grid_placement(*grid, *current);
+  ghost_wprint(game_win, *current, placement);
+  block_wprint(game_win, *current);
+  wrefresh(game_win);
+
+  *did_hold = false;
+
+  int offset_y = current->position.y - 1;
+  int offset_x = (current->position.x - 1) / 2;
+
+  return !is_block_overlap(*grid, current->shape, offset_y, offset_x);
 }

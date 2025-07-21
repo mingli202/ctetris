@@ -4,20 +4,14 @@
 #include "../blocks.h"
 #include "../lib.h"
 #include "../matrix/matrix.h"
+#include "../vec.h"
 
 #include <assert.h>
 #include <ncurses.h>
 
-enum Action { MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ROTATE_LEFT, ROTATE_RIGHT };
-
-void create_initial_queue(Block *queue) {
-  int last_color = -1;
-
-  for (int i = 0; i < 3; i++) {
-    queue[i] = block_new();
-    queue[i].position.y = 3 * i + 1;
-  }
-}
+void game(enum Screen *game_state, Vec *highscores, int initial_level,
+          bool is_constant_level);
+void print_instructions(WINDOW *win);
 
 void update_next_window(WINDOW *next_win, Block queue[]) {
   for (int i = 0; i < 3; i++) {
@@ -47,36 +41,6 @@ void update_next_window(WINDOW *next_win, Block queue[]) {
   }
 
   wrefresh(next_win);
-}
-
-void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
-                    Block *current) {
-  // things related to queue window
-  attrset(A_NORMAL);
-  for (int i = 1; i < 9; i++) {
-    mvwprintw(next_win, i, 1, "          ");
-  }
-
-  *current = queue[0];
-  block_center(dim_game, current);
-  current->position.y = 1;
-
-  if (current->type == I) {
-    current->position.y = 0;
-  }
-
-  queue[0] = queue[1];
-  queue[0].position.y -= 3;
-
-  queue[1] = queue[2];
-  queue[1].position.y -= 3;
-
-  int last_color = queue[1].color;
-
-  queue[2] = block_new();
-  queue[2].position.y = 2 * 3 + 1;
-
-  update_next_window(next_win, queue);
 }
 
 int update_grid(Matrix *grid) {
@@ -151,27 +115,6 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   wrefresh(game_win);
 
   return grid_placement;
-}
-
-double calculate_speed(int level, int initial_level, bool is_constant_level) {
-  level--;
-
-  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
-    level = initial_level;
-  }
-
-  double speed_curve[] = {
-      1.0,         0.793,       0.617796,    0.472729139, 0.355196928,
-      0.26200355,  0.189677245, 0.134734731, 0.093882249, 0.064151585,
-      0.042976258, 0.028217678, 0.018153329, 0.011439342, 0.007058616,
-      0.004263557, 0.002520084, 0.001457139, 0.000823907, 0.000455398,
-  };
-
-  if (level > 19) {
-    level = 19;
-  }
-
-  return speed_curve[level];
 }
 
 #endif
