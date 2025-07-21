@@ -1,4 +1,7 @@
 #include "game.h"
+#include "../vec.h"
+
+#include <string.h>
 
 void print_instructions(WINDOW *win) {
   char *instructions_left[] = {
@@ -21,18 +24,18 @@ void print_instructions(WINDOW *win) {
 
   for (int i = 0; i < 4; i++) {
     int len = strlen(instructions_right[i]);
-    mvwprintw(win, i + 1, COLS / 2 + dim_game.width / 2 + dim_hold.width - len,
+    mvwprintw(win, i + 1, COLS / 2 + W_GAME_WIDTH / 2 + W_HOLD_WIDTH - len,
               instructions_right[i]);
   }
   wrefresh(win);
 }
 
 void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
-  mvwprintw(win, LINES - 3, (COLS - dim_game.width) / 2 - dim_hold.width,
+  mvwprintw(win, LINES - 3, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
             "Score: %d", score);
-  mvwprintw(win, LINES - 2, (COLS - dim_game.width) / 2 - dim_hold.width,
+  mvwprintw(win, LINES - 2, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
             "Level: %d", level);
-  mvwprintw(win, LINES - 1, (COLS - dim_game.width) / 2 - dim_hold.width,
+  mvwprintw(win, LINES - 1, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
             "Lines: %d", lines_cleared);
   wrefresh(win);
 }
