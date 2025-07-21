@@ -170,15 +170,6 @@ void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
   wrefresh(win);
 }
 
-WINDOW *create_window_box(int height, int width, int y, int x, char word[]) {
-  WINDOW *win = newwin(height, width, y, x);
-  box(win, 0, 0);
-  mvwprintw(win, 0, (width - strlen(word)) / 2, word);
-  wrefresh(win);
-
-  return win;
-}
-
 void print_game_win(WINDOW *game_win, Matrix grid) {
   for (int i = 0; i < grid.m; i++) {
     for (int k = 0; k < grid.n; k++) {

@@ -1,12 +1,32 @@
 #include "state.h"
+#include <string.h>
 
-void create_initial_queue(Block *queue) {
-  int last_color = -1;
+State state_new() {
+  Block queue[3];
+  State state = {
+      .queue = queue,
+      .current = block_new(),
+      .window = newwin(0, 0, 0, 0),
+  };
 
+  return state;
+}
+
+void state_init_queue(State *state) {
   for (int i = 0; i < 3; i++) {
-    queue[i] = block_new();
-    queue[i].position.y = 3 * i + 1;
+    state->queue[i] = block_new();
+    state->queue[i].position.y = 3 * i + 1;
   }
+}
+
+WINDOW *create_window_with_box(int height, int width, int y, int x,
+                               char word[]) {
+  WINDOW *win = newwin(height, width, y, x);
+  box(win, 0, 0);
+  mvwprintw(win, 0, (width - strlen(word)) / 2, word);
+  wrefresh(win);
+
+  return win;
 }
 
 void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,

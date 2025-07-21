@@ -11,6 +11,14 @@
 #define W_NEXT_HEIGHT 10
 #define W_NEXT_WIDTH 12
 
+typedef struct Dimensions {
+  int width;
+  int height;
+  int x;
+  int y;
+  int box;
+} Dimensions;
+
 enum Screen { MENU, GAME };
 
 void init();

@@ -5,18 +5,26 @@
 #include <ncurses.h>
 
 typedef struct State {
-  Block queue[3];
+  Block *queue;
   Block current;
   Block hold;
   Matrix grid;
   int score;
   int level;
   int lines;
+  WINDOW *window;
+  WINDOW *game_window;
+  WINDOW *hold_window;
+  WINDOW *next_window;
 } State;
 
 State state_new();
+void state_init_queue(State *state);
+void state_init_windows(State *state);
 
-void create_initial_queue(Block *queue);
+WINDOW *create_window_with_box(int height, int width, int y, int x,
+                               char word[]);
+
 void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
                     Block *current);
 
