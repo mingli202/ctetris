@@ -12,6 +12,7 @@
 void game(enum Screen *game_state, Vec *highscores, int initial_level,
           bool is_constant_level);
 void print_instructions(WINDOW *win);
+void init_windows_dimensions();
 
 void update_next_window(WINDOW *next_win, Block queue[]) {
   for (int i = 0; i < 3; i++) {

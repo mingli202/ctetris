@@ -167,6 +167,16 @@ void print_stats(WINDOW *win, int score, int lines_cleared, int level) {
             "Level: %d", level);
   mvwprintw(win, LINES - 1, (COLS - W_GAME_WIDTH) / 2 - W_HOLD_WIDTH,
             "Lines: %d", lines_cleared);
+void init_windows_dimensions() {
+  dim_game.y = (LINES - dim_game.height) / 2;
+  dim_game.x = (COLS - dim_game.width) / 2;
+
+  dim_hold.y = dim_game.y;
+  dim_hold.x = dim_game.x - dim_hold.width;
+
+  dim_next.y = dim_game.y;
+  dim_next.x = dim_game.x + dim_game.width;
+}
   wrefresh(win);
 }
 
