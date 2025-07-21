@@ -1,4 +1,6 @@
 #include "blocks.h"
+#include <ncurses.h>
+#include <stdlib.h>
 
 Block block_new() {
   int type = arc4random_uniform(7) + 1;
