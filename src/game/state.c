@@ -34,6 +34,30 @@ void state_init_queue(State *state) {
   }
 }
 
+int state_update_grid(State *state) {
+  int front = 19;
+  int back = 19;
+
+  for (; front >= 0; front--) {
+    bool is_full = is_row_full(state->grid, front);
+
+    if (!is_full) {
+      for (int i = 0; i < state->grid.n; i++) {
+        matrix_set(&state->grid, back, i, matrix_get(state->grid, front, i));
+      }
+      back--;
+    }
+  }
+
+  int score = back - front;
+
+  for (; back >= 0; back--) {
+    clear_row(&state->grid, back);
+  }
+
+  return score;
+};
+
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]) {
   WINDOW *win = newwin(height, width, y, x);

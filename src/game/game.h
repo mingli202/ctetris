@@ -46,30 +46,6 @@ void update_next_window(WINDOW *next_win, Block queue[]) {
   wrefresh(next_win);
 }
 
-int update_grid(Matrix *grid) {
-  int front = 19;
-  int back = 19;
-
-  for (; front >= 0; front--) {
-    bool is_full = is_row_full(*grid, front);
-
-    if (!is_full) {
-      for (int i = 0; i < grid->n; i++) {
-        matrix_set(grid, back, i, matrix_get(*grid, front, i));
-      }
-      back--;
-    }
-  }
-
-  int score = back - front;
-
-  for (; back >= 0; back--) {
-    clear_row(grid, back);
-  }
-
-  return score;
-}
-
 void update_hold_window(WINDOW *hold_win, Block *hold) {
   int x = 3;
   if (hold->type == I) {

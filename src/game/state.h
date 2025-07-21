@@ -22,6 +22,7 @@ typedef struct State {
 
 State state_new();
 void state_init_queue(State *state);
+int state_update_grid(State *state);
 
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]);
