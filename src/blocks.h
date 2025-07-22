@@ -3,6 +3,7 @@
 
 #include "lib.h"
 #include "matrix/matrix.h"
+#include <ncurses.h>
 
 enum BlockType {
   I = 1,

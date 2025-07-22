@@ -6,15 +6,17 @@ Block block_new() {
   int type = arc4random_uniform(7) + 1;
 
   int x = 3;
+  int y = 1;
 
   if (type == I) {
     x = 2;
+    y = 0;
   } else if (type == O) {
     x = 4;
   }
 
   Block b = {.color = type,
-             .pos = {.x = x, .y = 1},
+             .pos = {.x = x, .y = y},
              .shape = block_get_shape(type),
              .type = type};
 
@@ -100,51 +102,7 @@ void block_wclear(WINDOW *win, Block block) {
 }
 
 void block_center(int width, Block *block) {
-  block->position.x = ((width - BOX_SIZE) / 4 - block->shape.n / 2) * 2 + 1;
-}
-
-Matrix get_shape(enum BlockType type) {
-  Matrix R;
-
-  switch (type) {
-  case I: {
-    int block[] = {1, 1, 1, 1};
-    R = matrix_from(1, 4, block);
-    break;
-  }
-  case J: {
-    int block[] = {1, 0, 0, 1, 1, 1};
-    R = matrix_from(2, 3, block);
-    break;
-  }
-  case L: {
-    int block[] = {0, 0, 1, 1, 1, 1};
-    R = matrix_from(2, 3, block);
-    break;
-  }
-  case O: {
-    int block[] = {1, 1, 1, 1};
-    R = matrix_from(2, 2, block);
-    break;
-  }
-  case S: {
-    int block[] = {0, 1, 1, 1, 1, 0};
-    R = matrix_from(2, 3, block);
-    break;
-  }
-  case T: {
-    int block[] = {0, 1, 0, 1, 1, 1};
-    R = matrix_from(2, 3, block);
-    break;
-  }
-  case Z: {
-    int block[] = {1, 1, 0, 0, 1, 1};
-    R = matrix_from(2, 3, block);
-    break;
-  }
-  }
-
-  return R;
+  block->pos.x = ((width - dim_game.box) / 4 - block->shape.n / 2) * 2 + 1;
 }
 
 void ghost_wprint(WINDOW *game_win, Block block, int grid_placement) {
