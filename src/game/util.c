@@ -16,17 +16,6 @@ bool is_block_overlap(Matrix grid, Matrix shape, int offset_y, int offset_x) {
   return false;
 }
 
-int get_grid_placement(Matrix grid, Block current) {
-  int offset_y = current.pos.y;
-  int offset_x = (current.pos.x - 1) / 2;
-
-  while (!is_block_overlap(grid, current.shape, offset_y, offset_x)) {
-    offset_y++;
-  }
-
-  return offset_y - 1;
-}
-
 double calculate_speed(int level, int initial_level, bool is_constant_level) {
   level--;
 
