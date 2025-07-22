@@ -4,6 +4,7 @@
 #include "state.h"
 #include "util.h"
 
+#include <pthread.h>
 #include <string.h>
 
 void game(enum Screen *game_state, Vec *highscores, int initial_level,
@@ -11,14 +12,14 @@ void game(enum Screen *game_state, Vec *highscores, int initial_level,
   init_windows_dimensions();
 
   State state = state_new();
+
   wclear(state.window);
   wrefresh(state.window);
-
   print_instructions(state.window);
 
-  update_next_window(state.next_window, state.queue);
+  refresh_next_window(state.next_window, state.queue);
 
-  int grid_placement = get_grid_placement(state.grid, state.current);
+  int grid_placement = state_get_grid_placement(&state);
   print_stats(state);
 
   ghost_wprint(state.game_window, state.current, grid_placement);
@@ -30,7 +31,8 @@ void game(enum Screen *game_state, Vec *highscores, int initial_level,
   clock_t now, then, interval;
   now = clock();
 
-  bool is_on_ground = false;
+  // pthread_t listenter;
+  // pthread_create(&listenter, NULL, init_listenter, NULL);
 
   while (run) {
     int ch = getch();
@@ -40,7 +42,7 @@ void game(enum Screen *game_state, Vec *highscores, int initial_level,
       quit();
       break;
     case ' ': {
-      run = update_board(&state, initial_level, is_on_ground);
+      run = update_board(&state, initial_level, is_constant_level);
 
       now = clock();
       break;
@@ -73,11 +75,9 @@ void game(enum Screen *game_state, Vec *highscores, int initial_level,
     then = clock();
     interval = then - now;
 
-    is_on_ground = state.current.pos.y == grid_placement + 1;
-
-    if (is_on_ground) {
+    if (state_is_on_ground(&state)) {
       if (interval >= 0.5 * CLOCKS_PER_SEC) {
-        run = update_board(&state, initial_level, is_on_ground);
+        run = update_board(&state, initial_level, is_constant_level);
 
         now = then;
       }
@@ -96,6 +96,17 @@ void game(enum Screen *game_state, Vec *highscores, int initial_level,
   delwin(state.game_window);
   delwin(state.hold_window);
   delwin(state.next_window);
+}
+
+void init_windows_dimensions() {
+  dim_game.y = (LINES - dim_game.height) / 2;
+  dim_game.x = (COLS - dim_game.width) / 2;
+
+  dim_hold.y = dim_game.y;
+  dim_hold.x = dim_game.x - dim_hold.width;
+
+  dim_next.y = dim_game.y;
+  dim_next.x = dim_game.x + dim_game.width;
 }
 
 void print_instructions(WINDOW *win) {
@@ -125,17 +136,6 @@ void print_instructions(WINDOW *win) {
   wrefresh(win);
 }
 
-void init_windows_dimensions() {
-  dim_game.y = (LINES - dim_game.height) / 2;
-  dim_game.x = (COLS - dim_game.width) / 2;
-
-  dim_hold.y = dim_game.y;
-  dim_hold.x = dim_game.x - dim_hold.width;
-
-  dim_next.y = dim_game.y;
-  dim_next.x = dim_game.x + dim_game.width;
-}
-
 void print_stats(State state) {
   WINDOW *win = state.window;
 
@@ -148,7 +148,7 @@ void print_stats(State state) {
   wrefresh(win);
 }
 
-void print_game_win(WINDOW *game_win, Matrix grid) {
+void refresh_game_window(WINDOW *game_win, Matrix grid) {
   for (int i = 0; i < grid.m; i++) {
     for (int k = 0; k < grid.n; k++) {
       wattrset(game_win, COLOR_PAIR(matrix_get(grid, i, k)));
@@ -159,9 +159,14 @@ void print_game_win(WINDOW *game_win, Matrix grid) {
   wrefresh(game_win);
 }
 
-void update_next_window(WINDOW *next_win, Block queue[]) {
+void refresh_next_window(WINDOW *next_win, Block queue[]) {
+  attrset(A_NORMAL);
+  for (int i = 1; i < 9; i++) {
+    mvwprintw(next_win, i, 1, "          ");
+  }
+
   for (int i = 0; i < 3; i++) {
-    Matrix block = get_shape(queue[i].type);
+    Matrix block = queue[i].shape;
     wattron(next_win, COLOR_PAIR(queue[i].color));
 
     int offset_x = 2;
@@ -189,56 +194,33 @@ void update_next_window(WINDOW *next_win, Block queue[]) {
   wrefresh(next_win);
 }
 
-void update_hold_window(WINDOW *hold_win, Block *hold) {
+void refresh_hold_window(WINDOW *hold_win, Block hold) {
   int x = 3;
-  if (hold->type == I) {
+  if (hold.type == I) {
     x = 2;
-  } else if (hold->type == O) {
+  } else if (hold.type == O) {
     x = 4;
   }
-  hold->pos.y = 1;
-  hold->pos.x = x;
-  hold->shape = block_get_shape(hold->type);
-  block_wprint(hold_win, *hold);
+  hold.pos.y = 1;
+  hold.pos.x = x;
+  hold.shape = block_get_shape(hold.type);
+  block_wprint(hold_win, hold);
   wrefresh(hold_win);
 }
 
 bool update_board(State *state, int initial_level, bool is_constant_level) {
-  int placement = get_grid_placement(state->grid, state->current);
-  place_block(&state->grid, state->current, placement);
+  state_grid_place_block(state);
 
   // scoring
-  int line_cleared = state_update_grid(state);
-  state->lines += line_cleared;
-
-  int level = state->lines / 10 + 1;
-  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
-    level = initial_level;
-  }
-
-  if (line_cleared > 0 && line_cleared <= 4) {
-    int score_mapping[] = {100, 300, 500, 800};
-    int s = score_mapping[line_cleared - 1] * (level);
-
-    if (state->combo_count > 0) {
-      s += state->combo_count * 50 * level;
-    }
-
-    state->score += s;
-
-    state->combo_count += 1;
-  } else {
-    state->combo_count = -1;
-  }
-
+  int lines_cleared = state_update_grid(state);
+  state_update_stats(state, initial_level, is_constant_level, lines_cleared);
   print_stats(*state);
 
   block_wclear(state->game_window, state->current);
-  print_game_win(state->game_window, state->grid);
-  update_current(state->next_window, state->game_window, state->queue,
-                 &state->current);
+  refresh_game_window(state->game_window, state->grid);
+  state_next_block(state);
 
-  placement = get_grid_placement(state->grid, state->current);
+  int placement = state_get_grid_placement(state);
   ghost_wprint(state->game_window, state->current, placement);
   block_wprint(state->game_window, state->current);
   wrefresh(state->game_window);
