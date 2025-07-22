@@ -29,6 +29,32 @@ typedef struct Block {
   enum BlockType type;
 } Block;
 
+enum BlockType block_list[7];
+int block_index;
+
+void fisher_yates_shuffle(enum BlockType *array, size_t n) {
+  if (n <= 1)
+    return;
+
+  for (size_t i = n - 1; i > 0; i--) {
+    // k is a random index with 0 <= k <= i
+    int k = arc4random_uniform(i);
+
+    // swap array[i] and array[k]
+    enum BlockType tmp = array[i];
+    array[i] = array[k];
+    array[k] = tmp;
+  }
+}
+
+void block_list_init() {
+  block_index = 0;
+  for (int i = 0; i < 7; i++) {
+    block_list[i] = (enum BlockType)(i + 1);
+  }
+  fisher_yates_shuffle(block_list, 7);
+}
+
 Matrix get_shape(enum BlockType type) {
   Matrix R;
 
@@ -150,7 +176,13 @@ void block_wclear(WINDOW *win, Block block) {
 }
 
 Block block_new() {
-  int type = arc4random_uniform(7) + 1;
+  enum BlockType type = block_list[block_index];
+  block_index++;
+
+  if (block_index >= 7) {
+    block_index = 0;
+    fisher_yates_shuffle(block_list, 7);
+  }
 
   int x = 3;
 

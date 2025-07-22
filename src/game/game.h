@@ -303,11 +303,13 @@ int swap_hold(WINDOW *hold_win, WINDOW *game_win, WINDOW *next_win,
   ghost_wclear(game_win, *current, grid_placement);
 
   if (hold->type == -1) {
-    *hold = block_new();
-    hold->color = current->color;
-    hold->shape = current->shape;
-    hold->type = current->type;
-    hold->position.y = 2;
+    Block b = {
+        .color = current->color,
+        .position = {.y = 2},
+        .shape = current->shape,
+        .type = current->type,
+    };
+    *hold = b;
 
     update_current(next_win, game_win, queue, current);
   } else {

@@ -109,6 +109,8 @@ bool update_board(WINDOW *game_win, WINDOW *next_win, WINDOW *win, Matrix *grid,
 
 void game(enum State *game_state, Vec *highscores, int initial_level,
           bool is_constant_level) {
+  block_list_init();
+
   WINDOW *win = newwin(0, 0, 0, 0);
   wclear(win);
   wrefresh(win);
@@ -151,8 +153,10 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
   int grid_placement = get_grid_placement(grid, current);
   print_stats(win, score, lines_cleared, initial_level);
 
-  Block hold = block_new();
-  hold.type = -1;
+  Block hold = {
+      .position = {.x = 0, .y = 1},
+      .type = -1,
+  };
   bool did_hold = false;
 
   ghost_wprint(game_win, current, grid_placement);
