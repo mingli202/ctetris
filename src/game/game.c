@@ -164,11 +164,8 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
   block_wprint(game_win, current);
   wrefresh(game_win);
 
-  bool run = true;
-  clock_t now, then, interval;
-  now = clock();
-
-  bool is_on_ground = false;
+  int n_frames = 0;
+  bool run = true, is_on_ground = false;
 
   uint64_t start, end, dt_ns;
 
@@ -185,53 +182,51 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
                          &score, &did_hold, &lines_cleared, &combo_count,
                          initial_level, is_constant_level);
 
-      now = clock();
+      n_frames = 0;
       break;
     }
     case KEY_LEFT:
-      grid_placement = dispatch(game_win, MOVE_LEFT, &current, grid, &now);
+      grid_placement = dispatch(game_win, MOVE_LEFT, &current, grid, &n_frames);
       break;
     case KEY_RIGHT:
-      grid_placement = dispatch(game_win, MOVE_RIGHT, &current, grid, &now);
+      grid_placement =
+          dispatch(game_win, MOVE_RIGHT, &current, grid, &n_frames);
       break;
     case KEY_DOWN: {
-      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &now);
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &n_frames);
       break;
     }
     case 'z':
-      grid_placement = dispatch(game_win, ROTATE_LEFT, &current, grid, &now);
+      grid_placement =
+          dispatch(game_win, ROTATE_LEFT, &current, grid, &n_frames);
       break;
     case KEY_UP:
-      grid_placement = dispatch(game_win, ROTATE_RIGHT, &current, grid, &now);
+      grid_placement =
+          dispatch(game_win, ROTATE_RIGHT, &current, grid, &n_frames);
       break;
     case 'c':
       if (!did_hold) {
         grid_placement = swap_hold(hold_win, game_win, next_win, &current,
                                    &hold, queue, grid);
-        now = clock();
+        n_frames = 0;
         did_hold = true;
       }
       break;
     }
 
-    then = clock();
-    interval = then - now;
-
     is_on_ground = current.position.y == grid_placement + 1;
 
     if (is_on_ground) {
-      if (interval >= 0.5 * CLOCKS_PER_SEC) {
+      if (n_frames >= 30) {
         run = update_board(game_win, next_win, win, &grid, &current, queue,
                            &score, &did_hold, &lines_cleared, &combo_count,
                            initial_level, is_constant_level);
 
-        now = then;
+        n_frames = 0;
       }
-    } else if (interval >=
-               CLOCKS_PER_SEC * calculate_speed(lines_cleared / 10 + 1,
-                                                initial_level,
-                                                is_constant_level)) {
-      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &now);
+    } else if (n_frames >= calculate_speed(lines_cleared / 10 + 1,
+                                           initial_level, is_constant_level)) {
+      grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &n_frames);
     }
 
     end = now_ns();
@@ -242,6 +237,7 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
                                     .tv_nsec = FRAME_TIME_NS - dt_ns};
       nanosleep(&sleep_time, NULL);
     }
+    n_frames++;
   }
 
   *game_state = MENU;

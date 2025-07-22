@@ -144,7 +144,7 @@ int update_grid(Matrix *grid) {
   return score;
 }
 
-int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
+int handle_rotate(Matrix grid, Block *current, Matrix standby, int *n_frames) {
   int offset_y = current->position.y - 1;
   int offset_x = (current->position.x - 1) / 2;
 
@@ -160,7 +160,7 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       grid_placement = get_grid_placement(grid, *current);
 
       if (current->position.y == grid_placement + 1) {
-        *now = clock();
+        *n_frames = 0;
       }
 
       return grid_placement;
@@ -178,7 +178,7 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       grid_placement = get_grid_placement(grid, *current);
 
       if (current->position.y == grid_placement + 1) {
-        *now = clock();
+        *n_frames = 0;
       }
 
       return grid_placement;
@@ -198,7 +198,7 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
       grid_placement = get_grid_placement(grid, *current);
 
       if (current->position.y == grid_placement + 1) {
-        *now = clock();
+        *n_frames = 0;
       }
 
       return grid_placement;
@@ -208,14 +208,14 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
   return grid_placement;
 }
 
-int handle_rotate_left(Matrix grid, Block *current, clock_t *now) {
+int handle_rotate_left(Matrix grid, Block *current, int *n_frames) {
   Matrix standby = matrix_rotate_left(current->shape);
-  return handle_rotate(grid, current, standby, now);
+  return handle_rotate(grid, current, standby, n_frames);
 }
 
-int handle_rotate_right(Matrix grid, Block *current, clock_t *now) {
+int handle_rotate_right(Matrix grid, Block *current, int *n_frames) {
   Matrix standby = matrix_rotate_right(current->shape);
-  return handle_rotate(grid, current, standby, now);
+  return handle_rotate(grid, current, standby, n_frames);
 }
 
 bool can_move_left(Matrix grid, Block current) {
@@ -233,7 +233,7 @@ bool can_move_right(Matrix grid, Block current) {
 }
 
 int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
-             clock_t *now) {
+             int *n_frames) {
   block_wclear(game_win, *current);
 
   int grid_placement = get_grid_placement(grid, *current);
@@ -246,7 +246,7 @@ int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
       grid_placement = get_grid_placement(grid, *current);
 
       if (current->position.y == grid_placement + 1) {
-        *now = clock();
+        *n_frames = 0;
       }
     }
     break;
@@ -256,21 +256,21 @@ int dispatch(WINDOW *game_win, enum Action action, Block *current, Matrix grid,
       grid_placement = get_grid_placement(grid, *current);
 
       if (current->position.y == grid_placement + 1) {
-        *now = clock();
+        *n_frames = 0;
       }
     }
     break;
   case MOVE_DOWN:
     if (current->position.y != grid_placement + 1) {
       current->position.y++;
-      *now = clock();
+      *n_frames = 0;
     }
     break;
   case ROTATE_LEFT:
-    grid_placement = handle_rotate_left(grid, current, now);
+    grid_placement = handle_rotate_left(grid, current, n_frames);
     break;
   case ROTATE_RIGHT:
-    grid_placement = handle_rotate_right(grid, current, now);
+    grid_placement = handle_rotate_right(grid, current, n_frames);
     break;
   }
 
@@ -352,7 +352,7 @@ double calculate_speed(int level, int initial_level, bool is_constant_level) {
     level = 19;
   }
 
-  return speed_curve[level];
+  return speed_curve[level] * 60;
 }
 
 #endif
