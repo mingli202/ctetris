@@ -217,7 +217,7 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
     is_on_ground = current.position.y == grid_placement + 1;
 
     if (is_on_ground) {
-      if (n_frames >= 30) {
+      if (n_frames >= TARGET_FPS / 2) {
         run = update_board(game_win, next_win, win, &grid, &current, queue,
                            &score, &did_hold, &lines_cleared, &combo_count,
                            initial_level, is_constant_level);

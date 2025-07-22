@@ -1,7 +1,7 @@
 #ifndef LIB_H
 #define LIB_H
 
-#define TARGET_FPS 60
+#define TARGET_FPS 120
 #define FRAME_TIME_NS (1000000000LL / TARGET_FPS)
 
 #include <math.h>

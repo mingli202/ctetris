@@ -352,7 +352,7 @@ double calculate_speed(int level, int initial_level, bool is_constant_level) {
     level = 19;
   }
 
-  return speed_curve[level] * 60;
+  return speed_curve[level] * TARGET_FPS;
 }
 
 #endif
