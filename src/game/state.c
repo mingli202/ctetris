@@ -60,7 +60,32 @@ int state_update_grid(State *state) {
   return score;
 };
 
-void state_swap_hold(State *state) {
+void state_update_stats(State *state, int initial_level, bool is_constant_level,
+                        int lines_cleared) {
+  state->lines += lines_cleared;
+
+  int level = state->lines / 10 + 1;
+  if (is_constant_level || (initial_level > 0 && level < initial_level)) {
+    level = initial_level;
+  }
+
+  if (lines_cleared > 0 && lines_cleared <= 4) {
+    int score_mapping[] = {100, 300, 500, 800};
+    int s = score_mapping[lines_cleared - 1] * (level);
+
+    if (state->combo_count > 0) {
+      s += state->combo_count * 50 * level;
+    }
+
+    state->score += s;
+
+    state->combo_count += 1;
+  } else {
+    state->combo_count = -1;
+  }
+}
+
+int state_swap_hold(State *state) {
   int grid_placement = get_grid_placement(state->grid, state->current);
   block_wclear(state->game_window, state->current);
   ghost_wclear(state->game_window, state->current, grid_placement);
@@ -96,6 +121,50 @@ void state_swap_hold(State *state) {
   state->grid_placement = grid_placement;
 }
 
+void state_next_block(State *state) {
+  state->current = state->queue[0];
+  state->queue[0] = state->queue[1];
+  state->queue[1] = state->queue[2];
+  state->queue[2] = block_new();
+}
+
+int state_get_grid_placement(State *state) {
+
+  int offset_y = state->current.pos.y;
+  int offset_x = (state->current.pos.x - 1) / 2;
+
+  while (!is_block_overlap(state->grid, state->current.shape, offset_y,
+                           offset_x)) {
+    offset_y++;
+  }
+
+  int grid_placement = offset_y - 1;
+
+  state->grid_placement = grid_placement;
+
+  return grid_placement;
+}
+
+bool state_is_on_ground(State *state) {
+  return state->current.pos.y == state->grid_placement + 1;
+}
+
+void state_grid_place_block(State *state) {
+  int placement = state_get_grid_placement(state);
+
+  int offset_y = placement;
+  int offset_x = state->current.pos.x / 2;
+
+  for (int i = 0; i < state->current.shape.m; i++) {
+    for (int k = 0; k < state->current.shape.n; k++) {
+      if (matrix_get(state->current.shape, i, k) == 1) {
+        matrix_set(&state->grid, i + offset_y, k + offset_x,
+                   state->current.color);
+      }
+    }
+  }
+}
+
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]) {
   WINDOW *win = newwin(height, width, y, x);
@@ -104,34 +173,4 @@ WINDOW *create_window_with_box(int height, int width, int y, int x,
   wrefresh(win);
 
   return win;
-}
-
-void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
-                    Block *current) {
-  // things related to queue window
-  attrset(A_NORMAL);
-  for (int i = 1; i < 9; i++) {
-    mvwprintw(next_win, i, 1, "          ");
-  }
-
-  *current = queue[0];
-  block_center(dim_game.width, current);
-  current->pos.y = 1;
-
-  if (current->type == I) {
-    current->pos.y = 0;
-  }
-
-  queue[0] = queue[1];
-  queue[0].pos.y -= 3;
-
-  queue[1] = queue[2];
-  queue[1].pos.y -= 3;
-
-  int last_color = queue[1].color;
-
-  queue[2] = block_new();
-  queue[2].pos.y = 2 * 3 + 1;
-
-  update_next_window(next_win, queue);
 }

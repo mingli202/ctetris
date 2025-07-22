@@ -23,12 +23,17 @@ typedef struct State {
 
 State state_new();
 void state_init_queue(State *state);
+void state_next_block(State *state);
 int state_update_grid(State *state);
 int state_swap_hold(State *state);
+int state_get_grid_placement(State *state);
+bool state_is_on_ground(State *state);
+
+void state_grid_place_block(State *state);
+void state_update_stats(State *state, int initial_level, bool is_constant_level,
+                        int lines_cleared);
 
 WINDOW *create_window_with_box(int height, int width, int y, int x,
                                char word[]);
-void update_current(WINDOW *next_win, WINDOW *game_win, Block *queue,
-                    Block *current);
 
 #endif
