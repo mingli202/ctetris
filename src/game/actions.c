@@ -1,18 +1,11 @@
 #include "actions.h"
 #include "util.h"
 
-void place_block(Matrix *grid, Block current, int placement) {
-  int offset_y = placement;
-  int offset_x = (current.pos.x - 1) / 2;
-
-  for (int i = 0; i < current.shape.m; i++) {
-    for (int k = 0; k < current.shape.n; k++) {
-      if (matrix_get(current.shape, i, k) == 1) {
-        matrix_set(grid, i + offset_y, k + offset_x, current.color);
-      }
-    }
+void *init_listenter(void *args) {
+  while (1) {
+    int ch = getch();
   }
-}
+};
 
 int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now) {
   int offset_y = current->pos.y - 1;
@@ -103,50 +96,50 @@ bool can_move_right(Matrix grid, Block current) {
 }
 
 int dispatch(State *state, enum Action action, clock_t *now) {
-  block_wclear(game_win, *current);
+  block_wclear(state->game_window, state->current);
 
-  int grid_placement = get_grid_placement(grid, *current);
-  ghost_wclear(game_win, *current, grid_placement);
+  int grid_placement = state_get_grid_placement(state);
+  ghost_wclear(state->game_window, state->current, grid_placement);
 
   switch (action) {
   case MOVE_RIGHT:
-    if (can_move_right(grid, *current)) {
-      current->pos.x += 2;
-      grid_placement = get_grid_placement(grid, *current);
+    if (can_move_right(state->grid, state->current)) {
+      state->current.pos.x += 1;
+      grid_placement = state_get_grid_placement(state);
 
-      if (current->pos.y == grid_placement + 1) {
+      if (state_is_on_ground(state)) {
         *now = clock();
       }
     }
     break;
   case MOVE_LEFT:
-    if (can_move_left(grid, *current)) {
-      current->pos.x -= 2;
-      grid_placement = get_grid_placement(grid, *current);
+    if (can_move_left(state->grid, state->current)) {
+      state->current.pos.x -= 1;
+      grid_placement = state_get_grid_placement(state);
 
-      if (current->pos.y == grid_placement + 1) {
+      if (state_is_on_ground(state)) {
         *now = clock();
       }
     }
     break;
   case MOVE_DOWN:
-    if (current->pos.y != grid_placement + 1) {
-      current->pos.y++;
+    if (!state_is_on_ground(state)) {
+      state->current.pos.y++;
       *now = clock();
     }
     break;
   case ROTATE_LEFT:
-    grid_placement = handle_rotate_left(grid, current, now);
+    grid_placement = handle_rotate_left(state->grid, &state->current, now);
     break;
   case ROTATE_RIGHT:
-    grid_placement = handle_rotate_right(grid, current, now);
+    grid_placement = handle_rotate_right(state->grid, &state->current, now);
     break;
   }
 
-  ghost_wprint(game_win, *current, grid_placement);
+  ghost_wprint(state->game_window, state->current, grid_placement);
 
-  block_wprint(game_win, *current);
-  wrefresh(game_win);
+  block_wprint(state->game_window, state->current);
+  wrefresh(state->game_window);
 
   return grid_placement;
 }

@@ -9,7 +9,7 @@
 
 enum Action { MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, ROTATE_LEFT, ROTATE_RIGHT };
 
-void place_block(Matrix *grid, Block current, int placement);
+void *init_listenter(void *args);
 
 int handle_rotate(Matrix grid, Block *current, Matrix standby, clock_t *now);
 int handle_rotate_left(Matrix grid, Block *current, clock_t *now);
