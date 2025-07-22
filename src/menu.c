@@ -76,8 +76,11 @@ void menu(enum State *game_state, Vec *highscores) {
 
   enum MenuOption menu_opt = PLAY;
 
+  uint64_t start, end, dt_ns;
+
   bool run = true;
   while (run) {
+    start = now_ns();
     // handle keypress
     int ch = getch();
 
@@ -97,6 +100,15 @@ void menu(enum State *game_state, Vec *highscores) {
       menu_select(win, QUIT);
       menu_opt = QUIT;
       break;
+    }
+
+    end = now_ns();
+    dt_ns = end - start;
+
+    if (dt_ns < FRAME_TIME_NS) {
+      struct timespec sleep_time = {.tv_sec = 0,
+                                    .tv_nsec = FRAME_TIME_NS - dt_ns};
+      nanosleep(&sleep_time, NULL);
     }
   }
 

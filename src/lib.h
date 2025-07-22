@@ -1,11 +1,15 @@
 #ifndef LIB_H
 #define LIB_H
 
+#define TARGET_FPS 60
+#define FRAME_TIME_NS (1000000000LL / TARGET_FPS)
+
 #include <math.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "vec.h"
 
@@ -81,6 +85,12 @@ void parse_args(int argc, char **argv, int *level, bool *is_constant_level) {
       }
     }
   }
+}
+
+static inline uint64_t now_ns(void) {
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
 #endif

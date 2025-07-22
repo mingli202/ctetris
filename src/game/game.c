@@ -170,7 +170,10 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
 
   bool is_on_ground = false;
 
+  uint64_t start, end, dt_ns;
+
   while (run) {
+    start = now_ns();
     int ch = getch();
 
     switch (ch) {
@@ -229,6 +232,15 @@ void game(enum State *game_state, Vec *highscores, int initial_level,
                                                 initial_level,
                                                 is_constant_level)) {
       grid_placement = dispatch(game_win, MOVE_DOWN, &current, grid, &now);
+    }
+
+    end = now_ns();
+    dt_ns = end - start;
+
+    if (dt_ns < FRAME_TIME_NS) {
+      struct timespec sleep_time = {.tv_sec = 0,
+                                    .tv_nsec = FRAME_TIME_NS - dt_ns};
+      nanosleep(&sleep_time, NULL);
     }
   }
 
