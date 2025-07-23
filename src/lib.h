@@ -1,8 +1,9 @@
 #ifndef LIB_H
 #define LIB_H
 
-#define TARGET_FPS 120
 #define FRAME_TIME_NS (1000000000LL / TARGET_FPS)
+
+int TARGET_FPS = 120;
 
 #include <math.h>
 #include <ncurses.h>
@@ -64,7 +65,10 @@ void print_help() {
   printf("Options:\n");
   printf("  -l, --level <level>          Set a constant level to play\n");
   printf("  -i, --initial-level <level>  Set the initial level to play\n");
-  printf("  -h, --help                   Show this help message\n");
+  printf("  -h, --help                   Show this help message\n\n");
+  printf(
+      "      --fps <value>            Set the target fps. Higher = higher\n");
+  printf("                               max speed. Default: 120Hz\n");
 }
 
 void parse_args(int argc, char **argv, int *level, bool *is_constant_level) {
@@ -82,6 +86,10 @@ void parse_args(int argc, char **argv, int *level, bool *is_constant_level) {
       if (i + 1 < argc) {
         *is_constant_level = false;
         *level = atoi(argv[i + 1]) <= 0 ? 1 : atoi(argv[i + 1]);
+      }
+    } else if (strcmp(argv[i], "--fps") == 0) {
+      if (i + 1 < argc) {
+        TARGET_FPS = atoi(argv[i + 1]) <= 0 ? 120 : atoi(argv[i + 1]);
       }
     }
   }
