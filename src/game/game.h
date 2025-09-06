@@ -190,18 +190,21 @@ int handle_rotate(Matrix grid, Block *current, Matrix standby, int *n_frames) {
   grid_placement = get_grid_placement(grid, *current);
 
   if (current->position.y == grid_placement + 1) {
-    offset_y--;
-    if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
-      current->position.y = offset_y + 1;
-      current->shape = standby;
+    for (int i = 0; i < 2; i++) {
+      offset_y--;
 
-      grid_placement = get_grid_placement(grid, *current);
+      if (!is_block_overlap(grid, standby, offset_y, offset_x)) {
+        current->position.y = offset_y + 1;
+        current->shape = standby;
 
-      if (current->position.y == grid_placement + 1) {
-        *n_frames = 0;
+        grid_placement = get_grid_placement(grid, *current);
+
+        if (current->position.y == grid_placement + 1) {
+          *n_frames = 0;
+        }
+
+        return grid_placement;
       }
-
-      return grid_placement;
     }
   }
 
